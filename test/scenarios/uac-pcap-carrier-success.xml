@@ -88,9 +88,8 @@
     </action>
   </nop>
 
-  <!-- Pause 8 seconds, which is approximately the duration of the      -->
-  <!-- PCAP file                                                        -->
-  <pause milliseconds="4000"/>
+  <!-- Pause briefly      -->
+  <pause milliseconds="3000"/>
 
   <!-- The 'crlf' option inserts a blank line in the statistics report. -->
   <send retrans="500">

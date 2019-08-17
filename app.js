@@ -11,9 +11,18 @@ if (process.env.NODE_ENV === 'test') {
   logger.child = () => {return {info: noop, error: noop, debug: noop};};
 }
 
-srf.listen(config.get('drachtio'));
+// config dictates whether to use outbound or inbound connections
+if (config.has('drachtio.host')) {
+  srf.connect(config.get('drachtio'));
+  srf.on('connect', (err, hp) => {
+    logger.info(`connected to drachtio listening on ${hp}`);
+  });
+}
+else {
+  srf.listen(config.get('drachtio'));
+}
 
-srf.request('invite', auth);
+srf.use('invite', auth);
 srf.invite(require('./lib/invite')({logger}));
 
 module.exports = {srf};

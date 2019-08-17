@@ -24,7 +24,7 @@ obj.output = () => {
   return output;
 };
 
-obj.sippUac = (file) => {
+obj.sippUac = (file, bindAddress) => {
   const cmd = 'docker';
   const args = [
     'run', '-ti', '--rm', '--net', `${network}`,
@@ -34,8 +34,10 @@ obj.sippUac = (file) => {
     '-sleep', '250ms',
     '-nostdin',
     '-cid_str', `%u-%p@%s-${idx++}`,
-    'drachtio'
+    'sbc'
   ];
+
+  if (bindAddress) args.splice(args.length - 2, 0, '-i', bindAddress);
 
   clearOutput();
 

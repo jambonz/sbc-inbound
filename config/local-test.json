@@ -4,7 +4,43 @@
     "port": 9060,
     "secret": "cymru"
   },
+  "rtpengine": {
+    "host": "127.0.0.1",
+    "port": 12222
+  },
   "logging": {
-    "level": "info"
+    "level": "debug"
+  },
+  "authCallback": {
+    "uri": "http://example.com/auth",
+    "auth": {
+      "username": "foo",
+      "password": "bar"
+    }
+  },
+  "trunks": {
+    "inbound": [
+      {
+        "name": "carrier1",
+        "host": ["172.38.0.20"]
+      }
+    ],
+    "appserver": ["sip:172.38.0.11"]
+  },
+  "transcoding": {
+    "rtpCharacteristics" : {
+       "transport protocol": "RTP/AVP",
+       "DTLS": "off",
+       "SDES": "off",
+       "ICE": "remove",
+       "rtcp-mux": ["demux"]
+    },
+    "srtpCharacteristics": {
+       "transport-protocol": "UDP/TLS/RTP/SAVPF",
+       "ICE": "force",
+       "SDES": "off",
+       "flags": ["generate mid", "SDES-no"],
+       "rtcp-mux": ["require"]
+    } 
   }
 }

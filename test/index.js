@@ -1,3 +1,4 @@
 require('./docker_start');
-require('./sip-tests');
+require('./carrier-origination');
+//require('./device-origination');
 require('./docker_stop');

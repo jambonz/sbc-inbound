@@ -15,23 +15,21 @@ function connect(connectable) {
   });
 }
 
-test('invite handler', (t) => {
+test('incoming call from carrier', (t) => {
   clearModule('../app');
-  const {srf, disconnectMs} = require('../app');
+  const {srf} = require('../app');
 
   connect(srf)
     .then(() => {
-      return sippUac('uac-pcap.xml');
+      return sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     })
     .then(() => {
-      t.pass('successfully connected call');
-      if (srf.locals.lb) srf.locals.lb.disconnect();
+      t.pass('successfully connected incoming call from carrier');
       srf.disconnect();
       t.end();
       return;
     })
     .catch((err) => {
-      if (srf.locals.lb) srf.locals.lb.disconnect();
       if (srf) srf.disconnect();
       console.log(`error received: ${err}`);
       t.error(err);
