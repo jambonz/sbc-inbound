@@ -12,10 +12,10 @@
     "level": "debug"
   },
   "authCallback": {
-    "uri": "http://example.com/auth",
+    "uri": "http://127.0.0.1:4000/auth",
     "auth": {
-      "username": "foo",
-      "password": "bar"
+      "user": "foo",
+      "pass ": "bar"
     }
   },
   "trunks": {

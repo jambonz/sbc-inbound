@@ -15,8 +15,7 @@ function connect(connectable) {
   });
 }
 
-test('incoming call from carrier', (t) => {
-  clearModule('../app');
+test('incoming call tests', (t) => {
   const {srf} = require('../app');
 
   connect(srf)
@@ -24,15 +23,22 @@ test('incoming call from carrier', (t) => {
       return sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     })
     .then(() => {
-      t.pass('successfully connected incoming call from carrier');
+      return t.pass('incoming call from carrier completed successfully');
+    })
+    .then(() => {
+      return sippUac('uac-pcap-device-success.xml', '172.38.0.30');
+    })
+    .then(() => {
+      return t.pass('incoming call from authenticated device completed successfully');
+    })
+    .then(() => {
       srf.disconnect();
       t.end();
       return;
     })
     .catch((err) => {
-      if (srf) srf.disconnect();
       console.log(`error received: ${err}`);
+      if (srf) srf.disconnect();
       t.error(err);
     });
 });
-

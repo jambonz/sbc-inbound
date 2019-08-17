@@ -30,6 +30,8 @@ services:
   auth-server:
     image: jambonz/customer-auth-server:latest
     command: npm start
+    ports:
+      - "4000:4000/tcp"
     env_file: docker.env
     networks:
       sbc-inbound:

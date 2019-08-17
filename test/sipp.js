@@ -1,5 +1,5 @@
 const { spawn } = require('child_process');
-//const debug = require('debug')('test:sipp');
+const debug = require('debug')('test:sipp');
 let network;
 const obj = {};
 let output = '';
@@ -39,6 +39,7 @@ obj.sippUac = (file, bindAddress) => {
 
   if (bindAddress) args.splice(5, 0, '--ip', bindAddress);
 
+  //console.log(args.join(' '));
   clearOutput();
 
   return new Promise((resolve, reject) => {

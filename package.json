@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "config": "^3.2.2",
-    "drachtio-http-authenticator": "0.0.3",
+    "drachtio-http-authenticator": "0.0.5",
     "drachtio-srf": "^4.4.14",
     "pino": "^5.13.2",
     "rtpengine-client": "0.0.8"

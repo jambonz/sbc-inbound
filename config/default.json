@@ -13,8 +13,8 @@
   "authCallback": {
     "uri": "http://example.com/auth",
     "auth": {
-      "username": "foo",
-      "password": "bar"
+      "user": "foo",
+      "pass": "bar"
     }
   },
   "trunks": {
