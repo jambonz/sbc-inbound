@@ -100,9 +100,16 @@ Inbound sip trunks are configured by specifing name and associated ip addresses.
     } 
   }
   ```
+## Forwarding behavior
+This application acts as a back-to-back user agent and media proxy.  When sending INVITEs on to the jambonz application servers, it adds the following headers onto the INVITE:
+
+- `X-Forwarded-For`: the IP address of the client that sent the INVITE
+- `X-Forwarded-Proto`: the transport protocol used by the client
+- `X-Forwarded-Carrier`: the name of the inbound carrier, if applicable
+
 ## Tests
 The automated test suite requires a docker installation.
+
 ```
 npm test
 ```
-

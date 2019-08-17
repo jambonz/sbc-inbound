@@ -37,7 +37,7 @@ obj.sippUac = (file, bindAddress) => {
     'sbc'
   ];
 
-  if (bindAddress) args.splice(args.length - 2, 0, '-i', bindAddress);
+  if (bindAddress) args.splice(5, 0, '--ip', bindAddress);
 
   clearOutput();
 

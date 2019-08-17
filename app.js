@@ -23,6 +23,6 @@ else {
 }
 
 srf.use('invite', auth);
-srf.invite(require('./lib/invite')({logger}));
+srf.invite(require('./lib/invite')({log: logger}));
 
 module.exports = {srf};
