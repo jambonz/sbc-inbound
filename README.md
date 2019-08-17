@@ -15,7 +15,7 @@ Configuration is provided via the [npmjs config](https://www.npmjs.com/package/c
 ```
 the `drachtio` object specifies the port to listen on for tcp connections from drachtio servers as well as the shared secret that is used to authenticate to the server.
 
-> Note: [outbound connections](https://drachtio.org/docs#outbound-connections) are used for all drachtio applications in jambonz, to allow for easier centralization and clustering of application logic.
+> Note: either inbound or [outbound connections](https://drachtio.org/docs#outbound-connections) may be used, depending on the configuration supplied.  In production, it is the intent to use outbound connections for easier centralization and clustering of application logic, while inbound connections are used for the automated test suite.
 
 ##### rtpengine location
 ```
@@ -100,4 +100,9 @@ Inbound sip trunks are configured by specifing name and associated ip addresses.
     } 
   }
   ```
+## Tests
+The automated test suite requires a docker installation.
+```
+npm test
+```
 
