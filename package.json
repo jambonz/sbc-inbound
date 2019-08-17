@@ -1,0 +1,37 @@
+{
+  "name": "sbc-inbound",
+  "version": "0.0.1",
+  "main": "app.js",
+  "engines": {
+    "node": ">= 8.10.0"
+  },
+  "keywords": [
+    "sip",
+    "drachtio"
+  ],
+  "author": "",
+  "license": "",
+  "scripts": {
+    "start": "node app",
+    "test": "NODE_ENV=test node test/ | ./node_modules/.bin/tap-spec",
+    "coverage": "./node_modules/.bin/nyc --reporter html --report-dir ./coverage npm run test",
+    "jslint": "eslint app.js lib"
+  },
+  "dependencies": {
+    "config": "^3.2.2",
+    "drachtio-http-authenticator": "0.0.2",
+    "drachtio-srf": "^4.4.14",
+    "pino": "^5.13.2",
+    "rtpengine-client": "0.0.8"
+  },
+  "devDependencies": {
+    "blue-tape": "^1.0.0",
+    "clear-module": "^4.0.0",
+    "eslint": "^6.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "nyc": "^14.1.1",
+    "tap": "^14.6.1",
+    "tap-dot": "^2.0.0",
+    "tap-spec": "^5.0.0"
+  }
+}

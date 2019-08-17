@@ -1,0 +1,32 @@
+version: '3'
+
+networks:
+  sbc-inbound:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.38.0.0/16
+
+services:
+  drachtio:
+    image: drachtio/drachtio-server:latest
+    command: drachtio --contact "sip:*;transport=udp" --loglevel debug --sofia-loglevel 9
+    container_name: drachtio
+    ports:
+      - "9060:9022/tcp"
+    networks:
+      sbc-inbound:
+        ipv4_address: 172.38.0.10
+
+  
+
+  sipp-uas:
+    image: drachtio/sipp:latest
+    command: sipp -sf /tmp/uas.xml
+    container_name: sipp-uas.local
+    volumes:
+      - ./scenarios:/tmp
+    tty: true
+    networks:
+      sbc-inbound:
+        ipv4_address: 172.38.0.12

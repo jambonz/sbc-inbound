@@ -1,0 +1,10 @@
+{
+  "drachtio": {
+    "host": "127.0.0.1",
+    "port": 9060,
+    "secret": "cymru"
+  },
+  "logging": {
+    "level": "info"
+  }
+}
