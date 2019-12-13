@@ -22,7 +22,7 @@
     "debug": "^4.1.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-http-authenticator": "^0.1.7",
-    "drachtio-srf": "^4.4.25",
+    "drachtio-srf": "^4.4.26",
     "jambonz-db-helpers": "^0.1.2",
     "pino": "^5.14.0",
     "rtpengine-client": "^0.0.8"
