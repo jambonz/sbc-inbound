@@ -11,21 +11,14 @@
   "logging": {
     "level": "debug"
   },
-  "authCallback": {
-    "uri": "http://127.0.0.1:4000/auth",
-    "auth": {
-      "user": "foo",
-      "pass ": "bar"
-    }
+  "mysql": {
+    "host": "localhost",
+    "user": "jambones_test",
+    "password": "jambones_test",
+    "database": "jambones_test"
   },
   "trunks": {
-    "inbound": [
-      {
-        "name": "carrier1",
-        "host": ["172.38.0.20"]
-      }
-    ],
-    "appserver": ["sip:172.38.0.11"]
+    "appserver": ["172.38.0.11"]
   },
   "transcoding": {
     "rtpCharacteristics" : {

@@ -32,6 +32,30 @@ test('incoming call tests', (t) => {
       return t.pass('incoming call from authenticated device completed successfully');
     })
     .then(() => {
+      return sippUac('uac-device-unknown-user.xml', '172.38.0.30');
+    })
+    .then(() => {
+      return t.pass('unknown user is rejected with a 403');
+    })
+    .then(() => {
+      return sippUac('uac-device-unknown-realm.xml', '172.38.0.30');
+    })
+    .then(() => {
+      return t.pass('unknown realm is rejected with a 403');
+    })
+    .then(() => {
+      return sippUac('uac-device-invalid-password.xml', '172.38.0.30');
+    })
+    .then(() => {
+      return t.pass('invalid password for valid user is rejected with a 403');
+    })
+    .then(() => {
+      return sippUac('uac-pcap-device-success-in-dialog-request.xml', '172.38.0.30');
+    })
+    .then(() => {
+      return t.pass('handles in-dialog requests');
+    })
+    .then(() => {
       srf.disconnect();
       t.end();
       return;

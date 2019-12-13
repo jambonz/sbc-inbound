@@ -32,84 +32,77 @@ the `rtpengine` object specifies the location of the rtpengine, which will typic
     "level": "info"
   }
 ```
-##### authentication web callback
+##### application server location
+The sip trunk routing to internal application servers are specified as an array of IP addresses.
 ```
-  "authCallback": {
-    "uri": "http://example.com/auth",
-    "auth": {
-      "username": "foo",
-      "password": "bar"
-    }
+  "trunks": {
+    "appserver": ["sip:10.10.120.1"]
+  }
+```
+##### transcoding options
+The transcoding options for rtpengine are found in the configuration file, however these should not need to be modified.
+```
+  "transcoding": {
+  "rtpCharacteristics" : {
+      "transport protocol": "RTP/AVP",
+      "DTLS": "off",
+      "SDES": "off",
+      "ICE": "remove",
+      "rtcp-mux": ["demux"]
   },
+  "srtpCharacteristics": {
+      "transport-protocol": "UDP/TLS/RTP/SAVPF",
+      "ICE": "force",
+      "SDES": "off",
+      "flags": ["generate mid", "SDES-no"],
+      "rtcp-mux": ["require"]
+  } 
+}
 ```
-the `authCallback` object specifies the http(s) url that a POST request will be sent to for each incoming REGISTER request.  The body of the POST will be a json payload including the following information:
+## Authentication
+Authenticating users is the responsibility of the client by exposing an http callback.  A POST request will be sent to the configured callback (i.e. the value in the `accounts.registration_hook` column in the associated sip realm value in the REGISTER request).  The body of the POST will be a json payload including the following information:
 ```
-    {
-      "method": "REGISTER",
-      "username": "daveh",
-      "realm": "drachtio.org",
-      "nonce": "2q4gct3g3ghbfj34h3",
-      "uri": "sip:dhorton@drachtio.org",
-      "response": "djaduys9g9d",
-    }
+{
+	"method": "REGISTER",
+	"expires": 3600,
+	"scheme": "digest",
+	"username": "john",
+	"realm": "jambonz.org",
+	"nonce": "157590482938000",
+	"uri": "sip:172.37.0.10:5060",
+	"response": "be641cf7951ff23ab04c57907d59f37d",
+	"qop": "auth",
+	"nc": "00000001",
+	"cnonce": "6b8b4567",
+	"algorithm": "MD5"
+}
 ```
-It is the responsibility of the customer-side logic to retrieve the associated password for the given username and authenticate the request by calculating a response token (per the algorithm described in [RFC 2617](https://tools.ietf.org/html/rfc2617#section-3.2.2)) and comparing it to that provided in the request.  
+It is the responsibility of the customer-side logic to retrieve the associated password for the given username and to then authenticate the request by calculating a response hash value (per the algorithm described in [RFC 2617](https://tools.ietf.org/html/rfc2617#section-3.2.2)) and comparing it to the response property in the http body.
 
-The `auth` property in the `authCallback` object is optional.  It should be provided if the customer callback is using HTTP Basic Authentication to protect the endpoint.
+For example code showing how to calculate the response hash given the above inputs, [see here](https://github.com/jambonz/customer-auth-server/blob/master/lib/utils.js).
 
-If the request is successfully authenticated, the callback should return a 200 OK response with a JSON body including:
+For a simple, full-fledged example server doing the same, [see here](https://github.com/jambonz/customer-auth-server).
+
+The customer server SHOULD return a 200 OK response to the http request in all cases with a json body indicating whether the request was successfully authenticated.
+
+The body MUST include a `status` field with a value of either `ok` or `fail`, indicating whether the request was authenticated or not.
 ```
 {"status": "ok"}
 ```
-This will signal the application to accept the registration request, respond accordingly to the client, and update the redis database with the active registration.
 
-In the case of failure, the customer-side application *should* return a 'msg' property indicating the reason, e.g.
+Additionally, in the case of failure, the body MAY include a `msg` field with a human-readable description of why the authentication failed.
 ```
 {"status": "fail", "msg": "invalid username"}
 ```
-##### sip trunks
-Inbound sip trunks are configured by specifing name and associated ip addresses.  Additionally, the sip trunk for internal jambonz application servers is specified as an array of IP addresses.
-```
-  "trunks": {
-    "inbound": [
-      {
-        "name": "carrier1",
-        "host": ["10.123.22.3"]
-      }
-    ],
-    "appserver": ["sip:10.10.120.1"]
-  }
-  ```
-  ##### transcoding options
-  The transcoding options for rtpengine are found in the configuration file, however these should not need to be modified.
-  ```
-    "transcoding": {
-    "rtpCharacteristics" : {
-       "transport protocol": "RTP/AVP",
-       "DTLS": "off",
-       "SDES": "off",
-       "ICE": "remove",
-       "rtcp-mux": ["demux"]
-    },
-    "srtpCharacteristics": {
-       "transport-protocol": "UDP/TLS/RTP/SAVPF",
-       "ICE": "force",
-       "SDES": "off",
-       "flags": ["generate mid", "SDES-no"],
-       "rtcp-mux": ["require"]
-    } 
-  }
-  ```
+
 ## Forwarding behavior
 This application acts as a back-to-back user agent and media proxy.  When sending INVITEs on to the jambonz application servers, it adds the following headers onto the INVITE:
 
 - `X-Forwarded-For`: the IP address of the client that sent the INVITE
-- `X-Forwarded-Proto`: the transport protocol used by the client
 - `X-Forwarded-Carrier`: the name of the inbound carrier, if applicable
 
-## Tests
-The automated test suite requires a docker installation.
-
+#### Running the test suite
+To run the included test suite, you will need to have a mysql server installed on your laptop/server. You will need to set the MYSQL_ROOT_PASSWORD env variable to the mysql root password before running the tests.  The test suite creates a database named 'jambones_test' in your mysql server to run the tests against, and removes it when done.
 ```
-npm test
+MYSQL_ROOT_PASSWORD=foobar npm test
 ```

@@ -2,7 +2,16 @@ const Srf = require('drachtio-srf');
 const srf = new Srf();
 const config = require('config');
 const logger = require('pino')(config.get('logging'));
-const {auth} = require('./lib/middleware');
+const {
+  lookupAuthHook,
+  lookupSipGatewayBySignalingAddress
+} = require('jambonz-db-helpers')(config.get('mysql'), logger);
+srf.locals.dbHelpers = {
+  lookupAuthHook,
+  lookupSipGatewayBySignalingAddress
+};
+const {challengeDeviceCalls} = require('./lib/middleware')(srf, logger);
+const CallSession = require('./lib/call-session');
 
 // disable logging in test mode
 if (process.env.NODE_ENV === 'test') {
@@ -21,8 +30,18 @@ if (config.has('drachtio.host')) {
 else {
   srf.listen(config.get('drachtio'));
 }
+if (process.env.NODE_ENV === 'test') {
+  srf.on('error', (err) => {
+    logger.info(err, 'Error connecting to drachtio');
+  });
+}
 
-srf.use('invite', auth);
-srf.invite(require('./lib/invite')({log: logger}));
+// challenge calls from devices, let calls from sip gateways through
+srf.use('invite', [challengeDeviceCalls]);
+
+srf.invite((req, res) => {
+  const session = new CallSession(logger, req, res);
+  session.connect();
+});
 
 module.exports = {srf};
