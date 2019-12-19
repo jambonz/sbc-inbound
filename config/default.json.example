@@ -1,6 +1,6 @@
 {
   "drachtio": {
-    "port": 3002,
+    "port": 3003,
     "secret": "cymru"
   },
   "rtpengine": {
