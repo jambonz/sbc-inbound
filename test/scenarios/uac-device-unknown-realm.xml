@@ -25,7 +25,7 @@
   <send retrans="500">
     <![CDATA[
 
-      INVITE sip:[service]@jambones.org SIP/2.0
+      INVITE sip:[service]@baddomain.org SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
       From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
       To: [service] <sip:[service]@[remote_ip]:[remote_port]>
@@ -59,7 +59,7 @@
   <send>
     <![CDATA[
 
-      ACK sip:[service]@jambones.org SIP/2.0
+      ACK sip:[service]@baddomain.org SIP/2.0
       [last_Via]
       From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
       To: [service] <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]

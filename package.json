@@ -28,9 +28,9 @@
     "config": "^3.2.4",
     "debug": "^4.1.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-http-authenticator": "^0.1.8",
     "drachtio-srf": "^4.4.27",
-    "jambonz-db-helpers": "^0.1.5",
+    "jambonz-db-helpers": "^0.2.0",
+    "jambonz-http-authenticator": "0.0.7",
     "pino": "^5.14.0",
     "rtpengine-client": "^0.0.8"
   },
