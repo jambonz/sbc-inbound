@@ -3,23 +3,9 @@
 
 DROP TABLE IF EXISTS `call_routes`;
 
-DROP TABLE IF EXISTS `conference_participants`;
-
-DROP TABLE IF EXISTS `conferences`;
-
 DROP TABLE IF EXISTS `lcr_carrier_set_entry`;
 
 DROP TABLE IF EXISTS `lcr_routes`;
-
-DROP TABLE IF EXISTS `queue_members`;
-
-DROP TABLE IF EXISTS `queues`;
-
-DROP TABLE IF EXISTS `calls`;
-
-DROP TABLE IF EXISTS `subscriptions`;
-
-DROP TABLE IF EXISTS `registrations`;
 
 DROP TABLE IF EXISTS `api_keys`;
 
@@ -45,94 +31,16 @@ CREATE TABLE IF NOT EXISTS `call_routes`
 `regex` VARCHAR(255) NOT NULL,
 `application_sid` CHAR(36) NOT NULL,
 PRIMARY KEY (`call_route_sid`)
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS `conferences`
-(
-`id` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE ,
-`conference_sid` CHAR(36) NOT NULL UNIQUE ,
-`name` VARCHAR(255),
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB COMMENT='An audio conference';
-
-CREATE TABLE IF NOT EXISTS `conference_participants`
-(
-`conference_participant_sid` CHAR(36) NOT NULL UNIQUE ,
-`call_sid` CHAR(36),
-`conference_sid` CHAR(36) NOT NULL,
-PRIMARY KEY (`conference_participant_sid`)
-) ENGINE=InnoDB COMMENT='A relationship between a call and a conference that it is co';
+) ENGINE=InnoDB COMMENT='a regex-based pattern match for call routing';
 
 CREATE TABLE IF NOT EXISTS `lcr_routes`
 (
 `lcr_route_sid` CHAR(36),
-`regex` VARCHAR(32) NOT NULL,
+`regex` VARCHAR(32) NOT NULL COMMENT 'regex-based pattern match against dialed number, used for LCR routing of PSTN calls',
 `description` VARCHAR(1024),
-`priority` INTEGER NOT NULL UNIQUE ,
+`priority` INTEGER NOT NULL UNIQUE  COMMENT 'lower priority routes are attempted first',
 PRIMARY KEY (`lcr_route_sid`)
-);
-
-CREATE TABLE IF NOT EXISTS `queues`
-(
-`id` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE ,
-`queue_sid` CHAR(36) NOT NULL UNIQUE ,
-`name` VARCHAR(255),
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB COMMENT='A set of behaviors to be applied to parked calls';
-
-CREATE TABLE IF NOT EXISTS `registrations`
-(
-`registration_sid` CHAR(36) NOT NULL UNIQUE ,
-`username` VARCHAR(255) NOT NULL,
-`domain` VARCHAR(255) NOT NULL,
-`sip_contact` VARCHAR(255) NOT NULL,
-`sip_user_agent` VARCHAR(255),
-PRIMARY KEY (`registration_sid`)
-) ENGINE=InnoDB COMMENT='An active sip registration';
-
-CREATE TABLE IF NOT EXISTS `queue_members`
-(
-`queue_member_sid` CHAR(36) NOT NULL UNIQUE ,
-`call_sid` CHAR(36),
-`queue_sid` CHAR(36) NOT NULL,
-`position` INTEGER,
-PRIMARY KEY (`queue_member_sid`)
-) ENGINE=InnoDB COMMENT='A relationship between a call and a queue that it is waiting';
-
-CREATE TABLE IF NOT EXISTS `calls`
-(
-`call_sid` CHAR(36) NOT NULL UNIQUE ,
-`parent_call_sid` CHAR(36),
-`application_sid` CHAR(36),
-`status_url` VARCHAR(255),
-`time_start` DATETIME NOT NULL,
-`time_alerting` DATETIME,
-`time_answered` DATETIME,
-`time_ended` DATETIME,
-`direction` ENUM('inbound','outbound'),
-`phone_number_sid` CHAR(36),
-`inbound_user_sid` CHAR(36),
-`outbound_user_sid` CHAR(36),
-`calling_number` VARCHAR(255),
-`called_number` VARCHAR(255),
-`caller_name` VARCHAR(255),
-`status` VARCHAR(255) NOT NULL COMMENT 'Possible values are queued, ringing, in-progress, completed, failed, busy and no-answer',
-`sip_uri` VARCHAR(255) NOT NULL,
-`sip_call_id` VARCHAR(255) NOT NULL,
-`sip_cseq` INTEGER NOT NULL,
-`sip_from_tag` VARCHAR(255) NOT NULL,
-`sip_via_branch` VARCHAR(255) NOT NULL,
-`sip_contact` VARCHAR(255),
-`sip_final_status` INTEGER UNSIGNED,
-`sdp_offer` VARCHAR(4096),
-`sdp_answer` VARCHAR(4096),
-`source_address` VARCHAR(255) NOT NULL,
-`source_port` INTEGER UNSIGNED NOT NULL,
-`dest_address` VARCHAR(255),
-`dest_port` INTEGER UNSIGNED,
-`url` VARCHAR(255),
-PRIMARY KEY (`call_sid`)
-) ENGINE=InnoDB COMMENT='A phone call';
+) COMMENT='Least cost routing table';
 
 CREATE TABLE IF NOT EXISTS `api_keys`
 (
@@ -143,22 +51,15 @@ CREATE TABLE IF NOT EXISTS `api_keys`
 PRIMARY KEY (`api_key_sid`)
 ) ENGINE=InnoDB COMMENT='An authorization token that is used to access the REST api';
 
-CREATE TABLE IF NOT EXISTS `subscriptions`
-(
-`id` INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE ,
-`subscription_sid` CHAR(36) NOT NULL UNIQUE ,
-`registration_sid` CHAR(36) NOT NULL,
-`event` VARCHAR(255),
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB COMMENT='An active sip subscription';
-
 CREATE TABLE IF NOT EXISTS `voip_carriers`
 (
 `voip_carrier_sid` CHAR(36) NOT NULL UNIQUE ,
-`name` VARCHAR(255) NOT NULL UNIQUE ,
+`name` VARCHAR(64) NOT NULL UNIQUE ,
 `description` VARCHAR(255),
+`account_sid` CHAR(36) COMMENT 'if provided, indicates this entity represents a customer PBX that is associated with a specific account',
+`application_sid` CHAR(36) COMMENT 'If provided, all incoming calls from this source will be routed to the associated application',
 PRIMARY KEY (`voip_carrier_sid`)
-) ENGINE=InnoDB COMMENT='An external organization that can provide sip trunking and D';
+) ENGINE=InnoDB COMMENT='A Carrier or customer PBX that can send or receive calls';
 
 CREATE TABLE IF NOT EXISTS `webhooks`
 (
@@ -168,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `webhooks`
 `username` VARCHAR(255),
 `password` VARCHAR(255),
 PRIMARY KEY (`webhook_sid`)
-);
+) COMMENT='An HTTP callback';
 
 CREATE TABLE IF NOT EXISTS `phone_numbers`
 (
@@ -183,91 +84,65 @@ PRIMARY KEY (`phone_number_sid`)
 CREATE TABLE IF NOT EXISTS `lcr_carrier_set_entry`
 (
 `lcr_carrier_set_entry_sid` CHAR(36),
-`workload` INTEGER NOT NULL DEFAULT 1,
+`workload` INTEGER NOT NULL DEFAULT 1 COMMENT 'represents a proportion of traffic to send through the associated carrier; can be used for load balancing traffic across carriers with a common priority for a destination',
 `lcr_route_sid` CHAR(36) NOT NULL,
 `voip_carrier_sid` CHAR(36) NOT NULL,
-`priority` INTEGER NOT NULL DEFAULT 0,
+`priority` INTEGER NOT NULL DEFAULT 0 COMMENT 'lower priority carriers are attempted first',
 PRIMARY KEY (`lcr_carrier_set_entry_sid`)
-);
+) COMMENT='An entry in the LCR routing list';
 
 CREATE TABLE IF NOT EXISTS `sip_gateways`
 (
 `sip_gateway_sid` CHAR(36),
-`ipv4` VARCHAR(32) NOT NULL,
-`port` INTEGER NOT NULL DEFAULT 5060,
-`inbound` BOOLEAN NOT NULL,
-`outbound` BOOLEAN NOT NULL,
+`ipv4` VARCHAR(32) NOT NULL COMMENT 'ip address or DNS name of the gateway.  For gateways providing inbound calling service, ip address is required.',
+`port` INTEGER NOT NULL DEFAULT 5060 COMMENT 'sip signaling port',
+`inbound` BOOLEAN NOT NULL COMMENT 'if true, whitelist this IP to allow inbound calls from the gateway',
+`outbound` BOOLEAN NOT NULL COMMENT 'if true, include in least-cost routing when placing calls to the PSTN',
 `voip_carrier_sid` CHAR(36) NOT NULL,
 `is_active` BOOLEAN NOT NULL DEFAULT 1,
 PRIMARY KEY (`sip_gateway_sid`)
-);
+) COMMENT='A whitelisted sip gateway used for origination/termination';
 
 CREATE TABLE IF NOT EXISTS `applications`
 (
 `application_sid` CHAR(36) NOT NULL UNIQUE ,
 `name` VARCHAR(255) NOT NULL,
-`account_sid` CHAR(36) NOT NULL,
-`call_hook_sid` CHAR(36),
-`call_status_hook_sid` CHAR(36),
+`account_sid` CHAR(36) NOT NULL COMMENT 'account that this application belongs to',
+`call_hook_sid` CHAR(36) COMMENT 'webhook to call for inbound calls to phone numbers owned by this account',
+`call_status_hook_sid` CHAR(36) COMMENT 'webhook to call for call status events',
 `speech_synthesis_vendor` VARCHAR(64) NOT NULL DEFAULT 'google',
 `speech_synthesis_voice` VARCHAR(64) NOT NULL DEFAULT 'en-US-Wavenet-C',
 `speech_recognizer_vendor` VARCHAR(64) NOT NULL DEFAULT 'google',
 `speech_recognizer_language` VARCHAR(64) NOT NULL DEFAULT 'en-US',
 PRIMARY KEY (`application_sid`)
-) ENGINE=InnoDB COMMENT='A defined set of behaviors to be applied to phone calls with';
+) ENGINE=InnoDB COMMENT='A defined set of behaviors to be applied to phone calls ';
 
 CREATE TABLE IF NOT EXISTS `service_providers`
 (
 `service_provider_sid` CHAR(36) NOT NULL UNIQUE ,
-`name` VARCHAR(255) NOT NULL UNIQUE ,
+`name` VARCHAR(64) NOT NULL UNIQUE ,
 `description` VARCHAR(255),
 `root_domain` VARCHAR(255) UNIQUE ,
 `registration_hook_sid` CHAR(36),
 PRIMARY KEY (`service_provider_sid`)
-) ENGINE=InnoDB COMMENT='An organization that provides communication services to its ';
+) ENGINE=InnoDB COMMENT='A partition of the platform used by one service provider';
 
 CREATE TABLE IF NOT EXISTS `accounts`
 (
 `account_sid` CHAR(36) NOT NULL UNIQUE ,
 `name` VARCHAR(255) NOT NULL,
-`sip_realm` VARCHAR(255) UNIQUE ,
-`service_provider_sid` CHAR(36) NOT NULL,
-`registration_hook_sid` CHAR(36),
-`device_calling_hook_sid` CHAR(36),
-`error_hook_sid` CHAR(36),
+`sip_realm` VARCHAR(132) UNIQUE  COMMENT 'sip domain that will be used for devices registering under this account',
+`service_provider_sid` CHAR(36) NOT NULL COMMENT 'service provider that owns the customer relationship with this account',
+`registration_hook_sid` CHAR(36) COMMENT 'webhook to call when devices underr this account attempt to register',
+`device_calling_hook_sid` CHAR(36) COMMENT 'webhook to call when devices under this account place outbound calls',
 `is_active` BOOLEAN NOT NULL DEFAULT true,
 PRIMARY KEY (`account_sid`)
-) ENGINE=InnoDB COMMENT='A single end-user of the platform';
+) ENGINE=InnoDB COMMENT='An enterprise that uses the platform for comm services';
 
 CREATE INDEX `call_routes_call_route_sid_idx` ON `call_routes` (`call_route_sid`);
 ALTER TABLE `call_routes` ADD FOREIGN KEY account_sid_idxfk (`account_sid`) REFERENCES `accounts` (`account_sid`);
 
 ALTER TABLE `call_routes` ADD FOREIGN KEY application_sid_idxfk (`application_sid`) REFERENCES `applications` (`application_sid`);
-
-CREATE INDEX `conferences_conference_sid_idx` ON `conferences` (`conference_sid`);
-CREATE INDEX `conference_participants_conference_participant_sid_idx` ON `conference_participants` (`conference_participant_sid`);
-ALTER TABLE `conference_participants` ADD FOREIGN KEY call_sid_idxfk (`call_sid`) REFERENCES `calls` (`call_sid`);
-
-ALTER TABLE `conference_participants` ADD FOREIGN KEY conference_sid_idxfk (`conference_sid`) REFERENCES `conferences` (`conference_sid`);
-
-CREATE INDEX `queues_queue_sid_idx` ON `queues` (`queue_sid`);
-CREATE INDEX `registrations_registration_sid_idx` ON `registrations` (`registration_sid`);
-CREATE INDEX `queue_members_queue_member_sid_idx` ON `queue_members` (`queue_member_sid`);
-ALTER TABLE `queue_members` ADD FOREIGN KEY call_sid_idxfk_1 (`call_sid`) REFERENCES `calls` (`call_sid`);
-
-ALTER TABLE `queue_members` ADD FOREIGN KEY queue_sid_idxfk (`queue_sid`) REFERENCES `queues` (`queue_sid`);
-
-CREATE INDEX `calls_call_sid_idx` ON `calls` (`call_sid`);
-ALTER TABLE `calls` ADD FOREIGN KEY parent_call_sid_idxfk (`parent_call_sid`) REFERENCES `calls` (`call_sid`);
-
-ALTER TABLE `calls` ADD FOREIGN KEY application_sid_idxfk_1 (`application_sid`) REFERENCES `applications` (`application_sid`);
-
-CREATE INDEX `calls_phone_number_sid_idx` ON `calls` (`phone_number_sid`);
-ALTER TABLE `calls` ADD FOREIGN KEY phone_number_sid_idxfk (`phone_number_sid`) REFERENCES `phone_numbers` (`phone_number_sid`);
-
-ALTER TABLE `calls` ADD FOREIGN KEY inbound_user_sid_idxfk (`inbound_user_sid`) REFERENCES `registrations` (`registration_sid`);
-
-ALTER TABLE `calls` ADD FOREIGN KEY outbound_user_sid_idxfk (`outbound_user_sid`) REFERENCES `registrations` (`registration_sid`);
 
 CREATE INDEX `api_keys_api_key_sid_idx` ON `api_keys` (`api_key_sid`);
 CREATE INDEX `api_keys_account_sid_idx` ON `api_keys` (`account_sid`);
@@ -276,16 +151,18 @@ ALTER TABLE `api_keys` ADD FOREIGN KEY account_sid_idxfk_1 (`account_sid`) REFER
 CREATE INDEX `api_keys_service_provider_sid_idx` ON `api_keys` (`service_provider_sid`);
 ALTER TABLE `api_keys` ADD FOREIGN KEY service_provider_sid_idxfk (`service_provider_sid`) REFERENCES `service_providers` (`service_provider_sid`);
 
-ALTER TABLE `subscriptions` ADD FOREIGN KEY registration_sid_idxfk (`registration_sid`) REFERENCES `registrations` (`registration_sid`);
-
 CREATE INDEX `voip_carriers_voip_carrier_sid_idx` ON `voip_carriers` (`voip_carrier_sid`);
 CREATE INDEX `voip_carriers_name_idx` ON `voip_carriers` (`name`);
+ALTER TABLE `voip_carriers` ADD FOREIGN KEY account_sid_idxfk_2 (`account_sid`) REFERENCES `accounts` (`account_sid`);
+
+ALTER TABLE `voip_carriers` ADD FOREIGN KEY application_sid_idxfk_1 (`application_sid`) REFERENCES `applications` (`application_sid`);
+
 CREATE INDEX `webhooks_webhook_sid_idx` ON `webhooks` (`webhook_sid`);
 CREATE INDEX `phone_numbers_phone_number_sid_idx` ON `phone_numbers` (`phone_number_sid`);
 CREATE INDEX `phone_numbers_voip_carrier_sid_idx` ON `phone_numbers` (`voip_carrier_sid`);
 ALTER TABLE `phone_numbers` ADD FOREIGN KEY voip_carrier_sid_idxfk (`voip_carrier_sid`) REFERENCES `voip_carriers` (`voip_carrier_sid`);
 
-ALTER TABLE `phone_numbers` ADD FOREIGN KEY account_sid_idxfk_2 (`account_sid`) REFERENCES `accounts` (`account_sid`);
+ALTER TABLE `phone_numbers` ADD FOREIGN KEY account_sid_idxfk_3 (`account_sid`) REFERENCES `accounts` (`account_sid`);
 
 ALTER TABLE `phone_numbers` ADD FOREIGN KEY application_sid_idxfk_2 (`application_sid`) REFERENCES `applications` (`application_sid`);
 
@@ -302,7 +179,7 @@ CREATE UNIQUE INDEX `applications_idx_name` ON `applications` (`account_sid`,`na
 CREATE INDEX `applications_application_sid_idx` ON `applications` (`application_sid`);
 CREATE INDEX `applications_name_idx` ON `applications` (`name`);
 CREATE INDEX `applications_account_sid_idx` ON `applications` (`account_sid`);
-ALTER TABLE `applications` ADD FOREIGN KEY account_sid_idxfk_3 (`account_sid`) REFERENCES `accounts` (`account_sid`);
+ALTER TABLE `applications` ADD FOREIGN KEY account_sid_idxfk_4 (`account_sid`) REFERENCES `accounts` (`account_sid`);
 
 ALTER TABLE `applications` ADD FOREIGN KEY call_hook_sid_idxfk (`call_hook_sid`) REFERENCES `webhooks` (`webhook_sid`);
 
@@ -322,5 +199,3 @@ ALTER TABLE `accounts` ADD FOREIGN KEY service_provider_sid_idxfk_1 (`service_pr
 ALTER TABLE `accounts` ADD FOREIGN KEY registration_hook_sid_idxfk_1 (`registration_hook_sid`) REFERENCES `webhooks` (`webhook_sid`);
 
 ALTER TABLE `accounts` ADD FOREIGN KEY device_calling_hook_sid_idxfk (`device_calling_hook_sid`) REFERENCES `webhooks` (`webhook_sid`);
-
-ALTER TABLE `accounts` ADD FOREIGN KEY error_hook_sid_idxfk (`error_hook_sid`) REFERENCES `webhooks` (`webhook_sid`);

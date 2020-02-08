@@ -26,6 +26,12 @@ test('incoming call tests', (t) => {
       return t.pass('incoming call from carrier completed successfully');
     })
     .then(() => {
+      return sippUac('uac-pcap-pbx-success.xml', '172.38.0.21');
+    })
+    .then(() => {
+      return t.pass('incoming call from customer PBX completed successfully');
+    })
+    .then(() => {
       return sippUac('uac-pcap-device-success.xml', '172.38.0.30');
     })
     .then(() => {
