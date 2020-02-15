@@ -1,5 +1,6 @@
 /* SQLEditor (MySQL (2))*/
 
+SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `call_routes`;
 
@@ -15,13 +16,15 @@ DROP TABLE IF EXISTS `sip_gateways`;
 
 DROP TABLE IF EXISTS `voip_carriers`;
 
-DROP TABLE IF EXISTS `applications`;
-
 DROP TABLE IF EXISTS `accounts`;
+
+DROP TABLE IF EXISTS `applications`;
 
 DROP TABLE IF EXISTS `service_providers`;
 
 DROP TABLE IF EXISTS `webhooks`;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE IF NOT EXISTS `call_routes`
 (
@@ -61,25 +64,25 @@ CREATE TABLE IF NOT EXISTS `voip_carriers`
 PRIMARY KEY (`voip_carrier_sid`)
 ) ENGINE=InnoDB COMMENT='A Carrier or customer PBX that can send or receive calls';
 
-CREATE TABLE IF NOT EXISTS `webhooks`
-(
-`webhook_sid` CHAR(36) NOT NULL UNIQUE ,
-`url` VARCHAR(255) NOT NULL,
-`method` ENUM("get","post") NOT NULL DEFAULT 'post',
-`username` VARCHAR(255),
-`password` VARCHAR(255),
-PRIMARY KEY (`webhook_sid`)
-) COMMENT='An HTTP callback';
-
 CREATE TABLE IF NOT EXISTS `phone_numbers`
 (
 `phone_number_sid` CHAR(36) UNIQUE ,
-`number` VARCHAR(255) NOT NULL UNIQUE ,
+`number` VARCHAR(32) NOT NULL UNIQUE ,
 `voip_carrier_sid` CHAR(36) NOT NULL,
 `account_sid` CHAR(36),
 `application_sid` CHAR(36),
 PRIMARY KEY (`phone_number_sid`)
 ) ENGINE=InnoDB COMMENT='A phone number that has been assigned to an account';
+
+CREATE TABLE IF NOT EXISTS `webhooks`
+(
+`webhook_sid` CHAR(36) NOT NULL UNIQUE ,
+`url` VARCHAR(1024) NOT NULL,
+`method` ENUM("GET","POST") NOT NULL DEFAULT 'POST',
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`webhook_sid`)
+) COMMENT='An HTTP callback';
 
 CREATE TABLE IF NOT EXISTS `lcr_carrier_set_entry`
 (
@@ -106,7 +109,7 @@ PRIMARY KEY (`sip_gateway_sid`)
 CREATE TABLE IF NOT EXISTS `applications`
 (
 `application_sid` CHAR(36) NOT NULL UNIQUE ,
-`name` VARCHAR(255) NOT NULL,
+`name` VARCHAR(64) NOT NULL,
 `account_sid` CHAR(36) NOT NULL COMMENT 'account that this application belongs to',
 `call_hook_sid` CHAR(36) COMMENT 'webhook to call for inbound calls to phone numbers owned by this account',
 `call_status_hook_sid` CHAR(36) COMMENT 'webhook to call for call status events',
@@ -122,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `service_providers`
 `service_provider_sid` CHAR(36) NOT NULL UNIQUE ,
 `name` VARCHAR(64) NOT NULL UNIQUE ,
 `description` VARCHAR(255),
-`root_domain` VARCHAR(255) UNIQUE ,
+`root_domain` VARCHAR(128) UNIQUE ,
 `registration_hook_sid` CHAR(36),
 PRIMARY KEY (`service_provider_sid`)
 ) ENGINE=InnoDB COMMENT='A partition of the platform used by one service provider';
@@ -130,11 +133,11 @@ PRIMARY KEY (`service_provider_sid`)
 CREATE TABLE IF NOT EXISTS `accounts`
 (
 `account_sid` CHAR(36) NOT NULL UNIQUE ,
-`name` VARCHAR(255) NOT NULL,
+`name` VARCHAR(64) NOT NULL,
 `sip_realm` VARCHAR(132) UNIQUE  COMMENT 'sip domain that will be used for devices registering under this account',
 `service_provider_sid` CHAR(36) NOT NULL COMMENT 'service provider that owns the customer relationship with this account',
 `registration_hook_sid` CHAR(36) COMMENT 'webhook to call when devices underr this account attempt to register',
-`device_calling_hook_sid` CHAR(36) COMMENT 'webhook to call when devices under this account place outbound calls',
+`device_calling_application_sid` CHAR(36) COMMENT 'application to use for outbound calling from an account',
 `is_active` BOOLEAN NOT NULL DEFAULT true,
 PRIMARY KEY (`account_sid`)
 ) ENGINE=InnoDB COMMENT='An enterprise that uses the platform for comm services';
@@ -157,7 +160,6 @@ ALTER TABLE `voip_carriers` ADD FOREIGN KEY account_sid_idxfk_2 (`account_sid`) 
 
 ALTER TABLE `voip_carriers` ADD FOREIGN KEY application_sid_idxfk_1 (`application_sid`) REFERENCES `applications` (`application_sid`);
 
-CREATE INDEX `webhooks_webhook_sid_idx` ON `webhooks` (`webhook_sid`);
 CREATE INDEX `phone_numbers_phone_number_sid_idx` ON `phone_numbers` (`phone_number_sid`);
 CREATE INDEX `phone_numbers_voip_carrier_sid_idx` ON `phone_numbers` (`voip_carrier_sid`);
 ALTER TABLE `phone_numbers` ADD FOREIGN KEY voip_carrier_sid_idxfk (`voip_carrier_sid`) REFERENCES `voip_carriers` (`voip_carrier_sid`);
@@ -166,6 +168,7 @@ ALTER TABLE `phone_numbers` ADD FOREIGN KEY account_sid_idxfk_3 (`account_sid`) 
 
 ALTER TABLE `phone_numbers` ADD FOREIGN KEY application_sid_idxfk_2 (`application_sid`) REFERENCES `applications` (`application_sid`);
 
+CREATE INDEX `webhooks_webhook_sid_idx` ON `webhooks` (`webhook_sid`);
 ALTER TABLE `lcr_carrier_set_entry` ADD FOREIGN KEY lcr_route_sid_idxfk (`lcr_route_sid`) REFERENCES `lcr_routes` (`lcr_route_sid`);
 
 ALTER TABLE `lcr_carrier_set_entry` ADD FOREIGN KEY voip_carrier_sid_idxfk_1 (`voip_carrier_sid`) REFERENCES `voip_carriers` (`voip_carrier_sid`);
@@ -198,4 +201,4 @@ ALTER TABLE `accounts` ADD FOREIGN KEY service_provider_sid_idxfk_1 (`service_pr
 
 ALTER TABLE `accounts` ADD FOREIGN KEY registration_hook_sid_idxfk_1 (`registration_hook_sid`) REFERENCES `webhooks` (`webhook_sid`);
 
-ALTER TABLE `accounts` ADD FOREIGN KEY device_calling_hook_sid_idxfk (`device_calling_hook_sid`) REFERENCES `webhooks` (`webhook_sid`);
+ALTER TABLE `accounts` ADD FOREIGN KEY device_calling_application_sid_idxfk (`device_calling_application_sid`) REFERENCES `applications` (`application_sid`);

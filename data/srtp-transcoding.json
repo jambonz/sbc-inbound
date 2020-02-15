@@ -1,0 +1,7 @@
+{
+  "transport-protocol": "UDP/TLS/RTP/SAVPF",
+  "ICE": "force",
+  "SDES": "off",
+  "flags": ["generate mid", "SDES-no"],
+  "rtcp-mux": ["require"]
+}
