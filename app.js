@@ -3,7 +3,6 @@ assert.ok(process.env.JAMBONES_MYSQL_HOST &&
   process.env.JAMBONES_MYSQL_USER &&
   process.env.JAMBONES_MYSQL_PASSWORD &&
   process.env.JAMBONES_MYSQL_DATABASE, 'missing JAMBONES_MYSQL_XXX env vars');
-assert.ok(process.env.JAMBONES_REDIS_HOST, 'missing JAMBONES_REDIS_HOST env var');
 assert.ok(process.env.DRACHTIO_PORT || process.env.DRACHTIO_HOST, 'missing DRACHTIO_PORT env var');
 assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
 assert.ok(process.env.JAMBONES_RTPENGINES, 'missing JAMBONES_RTPENGINES env var');
@@ -54,7 +53,7 @@ if (process.env.DRACHTIO_HOST) {
   });
 }
 else {
-  srf.listen({host: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
+  srf.listen({port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
 }
 if (process.env.NODE_ENV === 'test') {
   srf.on('error', (err) => {
