@@ -30,6 +30,7 @@
     "drachtio-srf": "^4.4.28",
     "jambonz-db-helpers": "^0.3.2",
     "jambonz-http-authenticator": "0.1.1",
+    "jambonz-rtpengine-utils": "0.0.5",
     "pino": "^5.14.0",
     "rtpengine-client": "^0.0.8"
   },
