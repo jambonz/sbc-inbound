@@ -1,6 +1,6 @@
 {
   "name": "sbc-inbound",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "app.js",
   "engines": {
     "node": ">= 10.16.0"
@@ -29,7 +29,7 @@
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.28",
     "jambonz-db-helpers": "^0.3.2",
-    "jambonz-http-authenticator": "0.0.7",
+    "jambonz-http-authenticator": "0.1.1",
     "pino": "^5.14.0",
     "rtpengine-client": "^0.0.8"
   },
