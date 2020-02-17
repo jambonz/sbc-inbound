@@ -5,8 +5,6 @@ assert.ok(process.env.JAMBONES_MYSQL_HOST &&
   process.env.JAMBONES_MYSQL_DATABASE, 'missing JAMBONES_MYSQL_XXX env vars');
 assert.ok(process.env.DRACHTIO_PORT || process.env.DRACHTIO_HOST, 'missing DRACHTIO_PORT env var');
 assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
-assert.ok(process.env.JAMBONES_RTPENGINES, 'missing JAMBONES_RTPENGINES env var');
-assert.ok(process.env.JAMBONES_FEATURE_SERVERS, 'missing JAMBONES_FEATURE_SERVERS env var');
 
 const Srf = require('drachtio-srf');
 const srf = new Srf();
@@ -24,20 +22,6 @@ const {
   database: process.env.JAMBONES_MYSQL_DATABASE,
   connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
 }, logger);
-
-// parse rtpengines
-srf.locals.rtpEngines = process.env.JAMBONES_RTPENGINES
-  .split(',')
-  .map((hp) => {
-    const arr = /^(.*):(.*)$/.exec(hp.trim());
-    if (arr) return {host: arr[1], port: parseInt(arr[2])};
-  });
-assert.ok(srf.locals.rtpEngines.length > 0, 'JAMBONES_RTPENGINES must be an array host:port addresses');
-
-// parse application servers
-srf.locals.featureServers = process.env.JAMBONES_FEATURE_SERVERS
-  .split(',')
-  .map((hp) => hp.trim());
 
 srf.locals.dbHelpers = {
   lookupAuthHook,
