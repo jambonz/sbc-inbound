@@ -5,6 +5,7 @@ assert.ok(process.env.JAMBONES_MYSQL_HOST &&
   process.env.JAMBONES_MYSQL_DATABASE, 'missing JAMBONES_MYSQL_XXX env vars');
 assert.ok(process.env.DRACHTIO_PORT || process.env.DRACHTIO_HOST, 'missing DRACHTIO_PORT env var');
 assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
+assert.ok(process.env.JAMBONES_RTPENGINES, 'missing DRACHTIO_SECRET env var');
 
 const Srf = require('drachtio-srf');
 const srf = new Srf();
@@ -12,7 +13,16 @@ const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
 const logger = require('pino')(opts);
+const StatsCollector = require('jambonz-stats-collector');
+srf.locals.stats = new StatsCollector(logger);
 srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
+const {getRtpEngine} = require('jambonz-rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), {
+  emitter: srf.locals.stats
+});
+srf.locals.getRtpEngine = getRtpEngine;
+srf.locals.activeCallIds = new Set();
+logger.info('starting..');
+
 const {
   lookupAuthHook,
   lookupSipGatewayBySignalingAddress
@@ -28,7 +38,7 @@ srf.locals.dbHelpers = {
   lookupAuthHook,
   lookupSipGatewayBySignalingAddress
 };
-const {challengeDeviceCalls} = require('./lib/middleware')(srf, logger);
+const {challengeDeviceCalls, initLocals} = require('./lib/middleware')(srf, logger);
 const CallSession = require('./lib/call-session');
 
 if (process.env.DRACHTIO_HOST) {
@@ -47,11 +57,16 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 // challenge calls from devices, let calls from sip gateways through
-srf.use('invite', [challengeDeviceCalls]);
+srf.use('invite', [initLocals, challengeDeviceCalls]);
 
 srf.invite((req, res) => {
   const session = new CallSession(logger, req, res);
   session.connect();
 });
 
-module.exports = {srf};
+srf.use((req, res, next, err) => {
+  logger.error(err, 'hit top-level error handler');
+  res.send(500);
+});
+
+module.exports = {srf, logger};
