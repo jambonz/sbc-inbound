@@ -71,6 +71,6 @@ srf.use((req, res, next, err) => {
 
 setInterval(() => {
   stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
-}, 3000);
+}, 5000);
 
 module.exports = {srf, logger};
