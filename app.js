@@ -14,13 +14,13 @@ const opts = Object.assign({
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
 const logger = require('pino')(opts);
 const StatsCollector = require('jambonz-stats-collector');
-srf.locals.stats = new StatsCollector(logger);
+const stats = srf.locals.stats = new StatsCollector(logger);
 srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
 const {getRtpEngine} = require('jambonz-rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), {
   emitter: srf.locals.stats
 });
 srf.locals.getRtpEngine = getRtpEngine;
-srf.locals.activeCallIds = new Set();
+const activeCallIds = srf.locals.activeCallIds = new Set();
 logger.info('starting..');
 
 const {
@@ -68,5 +68,9 @@ srf.use((req, res, next, err) => {
   logger.error(err, 'hit top-level error handler');
   res.send(500);
 });
+
+setInterval(() => {
+  stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
+}, 3000);
 
 module.exports = {srf, logger};
