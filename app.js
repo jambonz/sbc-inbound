@@ -8,7 +8,7 @@ assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
 assert.ok(process.env.JAMBONES_RTPENGINES, 'missing DRACHTIO_SECRET env var');
 
 const Srf = require('drachtio-srf');
-const srf = new Srf();
+const srf = new Srf('sbc-inbound');
 const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
