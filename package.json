@@ -29,7 +29,7 @@
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.28",
     "jambonz-db-helpers": "^0.3.3",
-    "jambonz-http-authenticator": "0.1.2",
+    "jambonz-http-authenticator": "0.1.5",
     "jambonz-rtpengine-utils": "0.0.14",
     "jambonz-stats-collector": "0.0.3",
     "pino": "^5.14.0",
