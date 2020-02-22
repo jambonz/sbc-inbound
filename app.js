@@ -16,7 +16,7 @@ const logger = require('pino')(opts);
 const StatsCollector = require('jambonz-stats-collector');
 const stats = srf.locals.stats = new StatsCollector(logger);
 srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
-const {getRtpEngine} = require('jambonz-rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), {
+const {getRtpEngine} = require('jambonz-rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), logger, {
   emitter: srf.locals.stats
 });
 srf.locals.getRtpEngine = getRtpEngine;
