@@ -48,7 +48,7 @@ if (process.env.DRACHTIO_HOST) {
     const last = hp.split(',').pop();
     const arr = /^(.*)\/(.*):(\d+)$/.exec(last);
     logger.info(`connected to drachtio listening on ${hp}: adding ${arr[2]} to sbc_addresses table`);
-    addSbcAddress(arr[1]);
+    addSbcAddress(arr[2]);
   });
 }
 else {
