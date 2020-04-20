@@ -25,7 +25,8 @@ logger.info('starting..');
 
 const {
   lookupAuthHook,
-  lookupSipGatewayBySignalingAddress
+  lookupSipGatewayBySignalingAddress,
+  addSbcAddress
 } = require('jambonz-db-helpers')({
   host: process.env.JAMBONES_MYSQL_HOST,
   user: process.env.JAMBONES_MYSQL_USER,
@@ -44,7 +45,10 @@ const CallSession = require('./lib/call-session');
 if (process.env.DRACHTIO_HOST) {
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
   srf.on('connect', (err, hp) => {
-    logger.info(`connected to drachtio listening on ${hp}`);
+    const last = hp.split(',').pop();
+    const arr = /^(.*)\/(.*):(\d+)$/.exec(last);
+    logger.info(`connected to drachtio listening on ${hp}: adding ${arr[2]} to sbc_addresses table`);
+    addSbcAddress(arr[1]);
   });
 }
 else {

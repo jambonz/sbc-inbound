@@ -1,6 +1,6 @@
 {
   "name": "sbc-inbound",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "main": "app.js",
   "engines": {
     "node": ">= 10.16.0"
@@ -28,9 +28,9 @@
     "debug": "^4.1.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.28",
-    "jambonz-realtimedb-helpers": "0.2.4",
-    "jambonz-db-helpers": "^0.3.3",
+    "jambonz-db-helpers": "^0.3.4",
     "jambonz-http-authenticator": "0.1.5",
+    "jambonz-realtimedb-helpers": "^0.2.4",
     "jambonz-rtpengine-utils": "0.1.1",
     "jambonz-stats-collector": "0.0.3",
     "pino": "^5.14.0",
