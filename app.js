@@ -20,14 +20,14 @@ const {getRtpEngine} = require('jambonz-rtpengine-utils')(process.env.JAMBONES_R
   emitter: srf.locals.stats
 });
 srf.locals.getRtpEngine = getRtpEngine;
-const activeCallIds = srf.locals.activeCallIds = new Set();
+const activeCallIds = srf.locals.activeCallIds = new Map();
 logger.info('starting..');
 
 const {
   lookupAuthHook,
   lookupSipGatewayBySignalingAddress,
   addSbcAddress
-} = require('jambonz-db-helpers')({
+} = require('@jambonz/db-helpers')({
   host: process.env.JAMBONES_MYSQL_HOST,
   user: process.env.JAMBONES_MYSQL_USER,
   password: process.env.JAMBONES_MYSQL_PASSWORD,
@@ -64,6 +64,17 @@ if (process.env.NODE_ENV === 'test') {
 srf.use('invite', [initLocals, challengeDeviceCalls]);
 
 srf.invite((req, res) => {
+  if (req.has('Replaces')) {
+    const arr = /^(.*);from/.exec(req.get('Replaces'));
+    if (arr) logger.info(`replacing call-id ${arr}`);
+    else logger.info(`failed parsing ${req.get('Replaces')}`);
+    const session = arr ? activeCallIds.get(arr[1]) : null;
+    if (!session) {
+      logger.info(`failed to find session in Replaces header: ${req.has('Replaces')}`);
+      return res.send(404);
+    }
+    return session.replaces(req, res);
+  }
   const session = new CallSession(logger, req, res);
   session.connect();
 });
@@ -75,6 +86,6 @@ srf.use((req, res, next, err) => {
 
 setInterval(() => {
   stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
-}, 5000);
+}, 20000);
 
 module.exports = {srf, logger};

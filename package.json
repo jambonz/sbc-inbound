@@ -27,8 +27,8 @@
   "dependencies": {
     "debug": "^4.1.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.4.28",
-    "jambonz-db-helpers": "^0.3.4",
+    "drachtio-srf": "^4.4.33",
+    "@jambonz/db-helpers": "^0.3.6",
     "jambonz-http-authenticator": "0.1.5",
     "jambonz-realtimedb-helpers": "^0.2.4",
     "jambonz-rtpengine-utils": "0.1.1",
