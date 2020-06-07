@@ -47,6 +47,7 @@ services:
 
   rtpengine:
     image: drachtio/rtpengine:latest
+    command: rtpengine --interface private/172.38.0.14 --interface public/172.38.0.14!172.38.0.14
     ports:
       - "12222:22222/udp"
     networks:
