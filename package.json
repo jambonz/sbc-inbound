@@ -27,14 +27,14 @@
   "dependencies": {
     "debug": "^4.1.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.4.34",
+    "drachtio-srf": "^4.4.36",
     "@jambonz/db-helpers": "^0.3.6",
     "jambonz-http-authenticator": "0.1.5",
     "jambonz-realtimedb-helpers": "^0.2.4",
     "jambonz-rtpengine-utils": "0.1.1",
     "jambonz-stats-collector": "0.0.3",
     "pino": "^5.14.0",
-    "rtpengine-client": "^0.0.8"
+    "rtpengine-client": "^0.1.1"
   },
   "devDependencies": {
     "blue-tape": "^1.0.0",
