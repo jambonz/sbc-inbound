@@ -13,10 +13,10 @@ const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
 const logger = require('pino')(opts);
-const StatsCollector = require('jambonz-stats-collector');
+const StatsCollector = require('@jambonz/stats-collector');
 const stats = srf.locals.stats = new StatsCollector(logger);
 srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
-const {getRtpEngine} = require('jambonz-rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), logger, {
+const {getRtpEngine} = require('@jambonz/rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), logger, {
   emitter: srf.locals.stats
 });
 srf.locals.getRtpEngine = getRtpEngine;
