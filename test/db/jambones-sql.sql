@@ -1,6 +1,6 @@
 /* SQLEditor (MySQL (2))*/
 
-SET FOREIGN_KEY_CHECKS = 0;
+SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS call_routes;
 
@@ -8,9 +8,9 @@ DROP TABLE IF EXISTS lcr_carrier_set_entry;
 
 DROP TABLE IF EXISTS lcr_routes;
 
-DROP TABLE IF EXISTS ms_teams_tenants;
-
 DROP TABLE IF EXISTS api_keys;
+
+DROP TABLE IF EXISTS ms_teams_tenants;
 
 DROP TABLE IF EXISTS sbc_addresses;
 
@@ -22,15 +22,13 @@ DROP TABLE IF EXISTS sip_gateways;
 
 DROP TABLE IF EXISTS voip_carriers;
 
-DROP TABLE IF EXISTS applications;
-
 DROP TABLE IF EXISTS accounts;
+
+DROP TABLE IF EXISTS applications;
 
 DROP TABLE IF EXISTS service_providers;
 
 DROP TABLE IF EXISTS webhooks;
-
-SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE call_routes
 (
@@ -51,16 +49,6 @@ priority INTEGER NOT NULL UNIQUE  COMMENT 'lower priority routes are attempted f
 PRIMARY KEY (lcr_route_sid)
 ) COMMENT='Least cost routing table';
 
-CREATE TABLE ms_teams_tenants
-(
-ms_teams_tenant_sid CHAR(36) NOT NULL UNIQUE ,
-service_provider_sid CHAR(36) NOT NULL,
-account_sid CHAR(36),
-application_sid CHAR(36),
-tenant_fqdn VARCHAR(255) NOT NULL UNIQUE ,
-PRIMARY KEY (ms_teams_tenant_sid)
-) COMMENT='A Microsoft Teams customer tenant';
-
 CREATE TABLE api_keys
 (
 api_key_sid CHAR(36) NOT NULL UNIQUE ,
@@ -70,6 +58,16 @@ service_provider_sid CHAR(36),
 expires_at TIMESTAMP,
 PRIMARY KEY (api_key_sid)
 ) ENGINE=InnoDB COMMENT='An authorization token that is used to access the REST api';
+
+CREATE TABLE ms_teams_tenants
+(
+ms_teams_tenant_sid CHAR(36) NOT NULL UNIQUE ,
+service_provider_sid CHAR(36) NOT NULL,
+account_sid CHAR(36) NOT NULL,
+application_sid CHAR(36),
+tenant_fqdn VARCHAR(255) NOT NULL UNIQUE ,
+PRIMARY KEY (ms_teams_tenant_sid)
+) COMMENT='A Microsoft Teams customer tenant';
 
 CREATE TABLE sbc_addresses
 (
@@ -97,6 +95,7 @@ name VARCHAR(64) NOT NULL UNIQUE ,
 description VARCHAR(255),
 account_sid CHAR(36) COMMENT 'if provided, indicates this entity represents a customer PBX that is associated with a specific account',
 application_sid CHAR(36) COMMENT 'If provided, all incoming calls from this source will be routed to the associated application',
+e164_leading_plus BOOLEAN NOT NULL DEFAULT false,
 PRIMARY KEY (voip_carrier_sid)
 ) ENGINE=InnoDB COMMENT='A Carrier or customer PBX that can send or receive calls';
 
@@ -185,21 +184,21 @@ ALTER TABLE call_routes ADD FOREIGN KEY account_sid_idxfk (account_sid) REFERENC
 
 ALTER TABLE call_routes ADD FOREIGN KEY application_sid_idxfk (application_sid) REFERENCES applications (application_sid);
 
-CREATE INDEX ms_teams_tenant_sid_idx ON ms_teams_tenants (ms_teams_tenant_sid);
-ALTER TABLE ms_teams_tenants ADD FOREIGN KEY service_provider_sid_idxfk (service_provider_sid) REFERENCES service_providers (service_provider_sid);
+CREATE INDEX api_key_sid_idx ON api_keys (api_key_sid);
+CREATE INDEX account_sid_idx ON api_keys (account_sid);
+ALTER TABLE api_keys ADD FOREIGN KEY account_sid_idxfk_1 (account_sid) REFERENCES accounts (account_sid);
 
-ALTER TABLE ms_teams_tenants ADD FOREIGN KEY account_sid_idxfk_1 (account_sid) REFERENCES accounts (account_sid);
+CREATE INDEX service_provider_sid_idx ON api_keys (service_provider_sid);
+ALTER TABLE api_keys ADD FOREIGN KEY service_provider_sid_idxfk (service_provider_sid) REFERENCES service_providers (service_provider_sid);
+
+CREATE INDEX ms_teams_tenant_sid_idx ON ms_teams_tenants (ms_teams_tenant_sid);
+ALTER TABLE ms_teams_tenants ADD FOREIGN KEY service_provider_sid_idxfk_1 (service_provider_sid) REFERENCES service_providers (service_provider_sid);
+
+ALTER TABLE ms_teams_tenants ADD FOREIGN KEY account_sid_idxfk_2 (account_sid) REFERENCES accounts (account_sid);
 
 ALTER TABLE ms_teams_tenants ADD FOREIGN KEY application_sid_idxfk_1 (application_sid) REFERENCES applications (application_sid);
 
 CREATE INDEX tenant_fqdn_idx ON ms_teams_tenants (tenant_fqdn);
-CREATE INDEX api_key_sid_idx ON api_keys (api_key_sid);
-CREATE INDEX account_sid_idx ON api_keys (account_sid);
-ALTER TABLE api_keys ADD FOREIGN KEY account_sid_idxfk_2 (account_sid) REFERENCES accounts (account_sid);
-
-CREATE INDEX service_provider_sid_idx ON api_keys (service_provider_sid);
-ALTER TABLE api_keys ADD FOREIGN KEY service_provider_sid_idxfk_1 (service_provider_sid) REFERENCES service_providers (service_provider_sid);
-
 CREATE INDEX sbc_addresses_idx_host_port ON sbc_addresses (ipv4,port);
 
 CREATE INDEX sbc_address_sid_idx ON sbc_addresses (sbc_address_sid);
@@ -254,3 +253,5 @@ ALTER TABLE accounts ADD FOREIGN KEY service_provider_sid_idxfk_3 (service_provi
 ALTER TABLE accounts ADD FOREIGN KEY registration_hook_sid_idxfk_1 (registration_hook_sid) REFERENCES webhooks (webhook_sid);
 
 ALTER TABLE accounts ADD FOREIGN KEY device_calling_application_sid_idxfk (device_calling_application_sid) REFERENCES applications (application_sid);
+
+SET FOREIGN_KEY_CHECKS=1;
