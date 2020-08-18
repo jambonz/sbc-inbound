@@ -55,7 +55,9 @@ api_key_sid CHAR(36) NOT NULL UNIQUE ,
 token CHAR(36) NOT NULL UNIQUE ,
 account_sid CHAR(36),
 service_provider_sid CHAR(36),
-expires_at TIMESTAMP,
+expires_at TIMESTAMP NULL,
+last_used TIMESTAMP NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (api_key_sid)
 ) ENGINE=InnoDB COMMENT='An authorization token that is used to access the REST api';
 
