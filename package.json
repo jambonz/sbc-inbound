@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@jambonz/db-helpers": "^0.5.1",
-    "@jambonz/realtimedb-helpers": "0.2.17",
+    "@jambonz/realtimedb-helpers": "0.2.18",
     "@jambonz/rtpengine-utils": "^0.1.7",
     "@jambonz/stats-collector": "0.1.0",
     "debug": "^4.1.1",
