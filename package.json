@@ -26,9 +26,9 @@
   },
   "dependencies": {
     "@jambonz/db-helpers": "^0.4.2",
-    "@jambonz/realtimedb-helpers": "0.2.16",
+    "@jambonz/realtimedb-helpers": "0.2.17",
     "@jambonz/rtpengine-utils": "^0.1.7",
-    "@jambonz/stats-collector": "0.0.4",
+    "@jambonz/stats-collector": "0.1.0",
     "debug": "^4.1.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.37",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "blue-tape": "^1.0.0",
     "clear-module": "^4.1.1",
-    "eslint": "^7.7.0",
+    "eslint": "^7.12.0",
     "eslint-plugin-promise": "^4.2.1",
     "nyc": "^15.1.0",
     "tap-spec": "^5.0.0"
