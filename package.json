@@ -25,21 +25,21 @@
     "jslint": "eslint app.js lib"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.5.1",
+    "@jambonz/db-helpers": "^0.5.3",
     "@jambonz/realtimedb-helpers": "0.2.19",
     "@jambonz/rtpengine-utils": "^0.1.7",
-    "@jambonz/stats-collector": "0.1.1",
-    "debug": "^4.1.1",
+    "@jambonz/stats-collector": "0.1.4",
+    "debug": "^4.3.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.4.37",
+    "drachtio-srf": "^4.4.44",
     "jambonz-http-authenticator": "0.1.5",
-    "pino": "^6.5.1",
+    "pino": "^6.8.0",
     "rtpengine-client": "^0.1.1"
   },
   "devDependencies": {
     "blue-tape": "^1.0.0",
     "clear-module": "^4.1.1",
-    "eslint": "^7.12.0",
+    "eslint": "^7.15.0",
     "eslint-plugin-promise": "^4.2.1",
     "nyc": "^15.1.0",
     "tap-spec": "^5.0.0"
