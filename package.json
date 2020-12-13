@@ -26,9 +26,9 @@
   },
   "dependencies": {
     "@jambonz/db-helpers": "^0.5.3",
-    "@jambonz/realtimedb-helpers": "0.2.19",
+    "@jambonz/realtimedb-helpers": "^0.2.20",
     "@jambonz/rtpengine-utils": "^0.1.7",
-    "@jambonz/stats-collector": "0.1.4",
+    "@jambonz/stats-collector": "^0.1.4",
     "debug": "^4.3.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.44",
