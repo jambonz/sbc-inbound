@@ -1,5 +1,5 @@
 const { spawn } = require('child_process');
-const debug = require('debug')('test:sipp');
+const debug = require('debug')('jambonz:ci');
 let network;
 const obj = {};
 let output = '';
@@ -27,7 +27,7 @@ obj.output = () => {
 obj.sippUac = (file, bindAddress) => {
   const cmd = 'docker';
   const args = [
-    'run', '-ti', '--rm', '--net', `${network}`,
+    'run', '--rm', '--net', `${network}`,
     '-v', `${__dirname}/scenarios:/tmp/scenarios`,
     'drachtio/sipp', 'sipp', '-sf', `/tmp/scenarios/${file}`,
     '-m', '1',
@@ -37,7 +37,7 @@ obj.sippUac = (file, bindAddress) => {
     'sbc'
   ];
 
-  if (bindAddress) args.splice(5, 0, '--ip', bindAddress);
+  if (bindAddress) args.splice(4, 0, '--ip', bindAddress);
 
   //console.log(args.join(' '));
   clearOutput();
@@ -57,11 +57,11 @@ obj.sippUac = (file, bindAddress) => {
     });
 
     child_process.stdout.on('data', (data) => {
-      //debug(`stdout: ${data}`);
+      debug(`stderr: ${data}`);
       addOutput(data.toString());
     });
-    child_process.stdout.on('data', (data) => {
-      //debug(`stdout: ${data}`);
+    child_process.stderr.on('data', (data) => {
+      debug(`stderr: ${data}`);
       addOutput(data.toString());
     });
   });

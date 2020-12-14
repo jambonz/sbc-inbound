@@ -1,4 +1,4 @@
-# sbc-inbound [![Build Status](https://secure.travis-ci.org/jambonz/sbc-inbound.png)](http://travis-ci.org/jambonz/sbc-inbound)
+# sbc-inbound ![Build Status](https://github.com/jambonz/sbc-inbound/workflows/CI/badge.svg)
 
 This application provides a part of the SBC (Session Border Controller) functionality of jambonz.  It handles incoming INVITE requests from carrier sip trunks or from sip devices and webrtc applications. SIP INVITEs from known carriers are allowed in, while INVITEs from sip devices are challenged to authenticate.  SIP traffic that is allowed in is sent on to a jambonz application server in a private subnet.
 
