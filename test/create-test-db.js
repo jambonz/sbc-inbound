@@ -1,6 +1,5 @@
 const test = require('tape').test ;
 const exec = require('child_process').exec ;
-const pwd = process.env.TRAVIS ? '' : '-p$MYSQL_ROOT_PASSWORD';
 
 test('creating jambones_test database', (t) => {
   exec(`mysql -h 127.0.0.1 -u root --protocol=tcp  < ${__dirname}/db/create_test_db.sql`, (err, stdout, stderr) => {
