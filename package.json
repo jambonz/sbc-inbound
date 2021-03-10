@@ -25,11 +25,11 @@
     "jslint": "eslint app.js lib"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.5.5",
+    "@jambonz/db-helpers": "^0.5.12",
+    "@jambonz/http-authenticator": "^0.1.6",
     "@jambonz/realtimedb-helpers": "^0.2.20",
     "@jambonz/rtpengine-utils": "^0.1.7",
     "@jambonz/stats-collector": "^0.1.4",
-    "@jambonz/http-authenticator": "^0.1.6",
     "debug": "^4.3.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.44",
