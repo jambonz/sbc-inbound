@@ -17,7 +17,7 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "--protocol", "tcp"]
       timeout: 5s
-      retries: 10    
+      retries: 15    
     networks:
       sbc-inbound:
         ipv4_address: 172.38.0.2
@@ -70,3 +70,10 @@ services:
       sbc-inbound:
         ipv4_address: 172.38.0.14
 
+  influxdb:
+    image: influxdb:1.8-alpine
+    ports:
+      - "8086:8086"
+    networks:
+      sbc-inbound:
+        ipv4_address: 172.38.0.90

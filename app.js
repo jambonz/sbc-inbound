@@ -5,28 +5,38 @@ assert.ok(process.env.JAMBONES_MYSQL_HOST &&
   process.env.JAMBONES_MYSQL_DATABASE, 'missing JAMBONES_MYSQL_XXX env vars');
 assert.ok(process.env.DRACHTIO_PORT || process.env.DRACHTIO_HOST, 'missing DRACHTIO_PORT env var');
 assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
-assert.ok(process.env.JAMBONES_RTPENGINES, 'missing DRACHTIO_SECRET env var');
-
+assert.ok(process.env.JAMBONES_TIME_SERIES_HOST, 'missing JAMBONES_TIME_SERIES_HOST env var');
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
 const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
 const logger = require('pino')(opts);
-const StatsCollector = require('@jambonz/stats-collector');
-const stats = srf.locals.stats = new StatsCollector(logger);
-srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
-const {getRtpEngine} = require('@jambonz/rtpengine-utils')(process.env.JAMBONES_RTPENGINES.split(','), logger, {
-  emitter: srf.locals.stats
+const {
+  queryCdrs,
+  writeCdrs,
+  writeAlerts,
+  AlertType
+} = require('@jambonz/time-series')(logger, {
+  host: process.env.JAMBONES_TIME_SERIES_HOST,
+  commitSize: 50,
+  commitInterval: 'test' === process.env.NODE_ENV ? 7 : 20
 });
-srf.locals.getRtpEngine = getRtpEngine;
-const activeCallIds = srf.locals.activeCallIds = new Map();
-logger.info('starting..');
+const StatsCollector = require('@jambonz/stats-collector');
+const stats = new StatsCollector(logger);
+const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
+const rtpServers = [];
 
 const {
+  pool,
   lookupAuthHook,
   lookupSipGatewayBySignalingAddress,
-  addSbcAddress
+  addSbcAddress,
+  lookupAccountByPhoneNumber,
+  lookupAppByTeamsTenant,
+  lookupAccountBySipRealm,
+  lookupAccountBySid,
+  lookupAccountCapacitiesBySid
 } = require('@jambonz/db-helpers')({
   host: process.env.JAMBONES_MYSQL_HOST,
   user: process.env.JAMBONES_MYSQL_USER,
@@ -34,12 +44,46 @@ const {
   database: process.env.JAMBONES_MYSQL_DATABASE,
   connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
 }, logger);
+const {createSet, retrieveSet, incrKey, decrKey} = require('@jambonz/realtimedb-helpers')({
+  host: process.env.JAMBONES_REDIS_HOST || 'localhost',
+  port: process.env.JAMBONES_REDIS_PORT || 6379
+}, logger);
 
-srf.locals.dbHelpers = {
-  lookupAuthHook,
-  lookupSipGatewayBySignalingAddress
+const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {emitter: stats});
+srf.locals = {...srf.locals,
+  stats,
+  queryCdrs,
+  writeCdrs,
+  writeAlerts,
+  AlertType,
+  activeCallIds: new Map(),
+  getRtpEngine,
+  dbHelpers: {
+    pool,
+    lookupAuthHook,
+    lookupSipGatewayBySignalingAddress,
+    lookupAccountByPhoneNumber,
+    lookupAppByTeamsTenant,
+    lookupAccountBySid,
+    lookupAccountBySipRealm,
+    lookupAccountCapacitiesBySid
+  },
+  realtimeDbHelpers: {
+    createSet,
+    incrKey,
+    decrKey,
+    retrieveSet
+  }
 };
-const {challengeDeviceCalls, initLocals} = require('./lib/middleware')(srf, logger);
+srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
+const activeCallIds = srf.locals.activeCallIds;
+
+const {
+  initLocals,
+  identifyAccount,
+  checkLimits,
+  challengeDeviceCalls
+} = require('./lib/middleware')(srf, logger);
 const CallSession = require('./lib/call-session');
 
 if (process.env.DRACHTIO_HOST) {
@@ -48,7 +92,12 @@ if (process.env.DRACHTIO_HOST) {
     const last = hp.split(',').pop();
     const arr = /^(.*)\/(.*):(\d+)$/.exec(last);
     logger.info(`connected to drachtio listening on ${hp}: adding ${arr[2]} to sbc_addresses table`);
-    addSbcAddress(arr[2]);
+    srf.locals.sipAddress = arr[2];
+
+    /* don't add IP to the general SBC table if this is a static IP for a single account */
+    if (!process.env.SBC_ACCOUNT_SID) {
+      addSbcAddress(arr[2]);
+    }
   });
 }
 else {
@@ -60,8 +109,8 @@ if (process.env.NODE_ENV === 'test') {
   });
 }
 
-// challenge calls from devices, let calls from sip gateways through
-srf.use('invite', [initLocals, challengeDeviceCalls]);
+/* install middleware */
+srf.use('invite', [initLocals, identifyAccount, checkLimits, challengeDeviceCalls]);
 
 srf.invite((req, res) => {
   if (req.has('Replaces')) {
@@ -84,8 +133,47 @@ srf.use((req, res, next, err) => {
   res.send(500);
 });
 
+/* update call stats periodically */
 setInterval(() => {
   stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
 }, 20000);
+
+const arrayCompare = (a, b) => {
+  if (a.length !== b.length) return false;
+  const uniqueValues = new Set([...a, ...b]);
+  for (const v of uniqueValues) {
+    const aCount = a.filter((e) => e === v).length;
+    const bCount = b.filter((e) => e === v).length;
+    if (aCount !== bCount) return false;
+  }
+  return true;
+};
+
+/* update rtpengines periodically */
+if (process.env.JAMBONES_RTPENGINES) {
+  setRtpEngines([process.env.JAMBONES_RTPENGINES]);
+}
+else {
+  const getActiveRtpServers = async() => {
+    try {
+      const set = await retrieveSet(setNameRtp);
+      const newArray = Array.from(set);
+      logger.debug({newArray, rtpServers}, 'getActiveRtpServers');
+      if (!arrayCompare(newArray, rtpServers)) {
+        logger.info({newArray}, 'resetting active rtpengines');
+        setRtpEngines(newArray.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
+        rtpServers.length = 0;
+        Array.prototype.push.apply(rtpServers, newArray);
+      }
+    } catch (err) {
+      logger.error({err}, 'Error setting new rtpengines');
+    }
+  };
+
+  setInterval(() => {
+    getActiveRtpServers();
+  }, 30000);
+  getActiveRtpServers();
+}
 
 module.exports = {srf, logger};

@@ -25,10 +25,10 @@
   <send retrans="500">
     <![CDATA[
 
-      INVITE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+      INVITE sip:+16173333456@jambonz.org SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
       From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
-      To: [service] <sip:[service]@[remote_ip]:[remote_port]>
+      To: <sip:16173333456@jambonz.org>
       Call-ID: [call_id]
       CSeq: 1 INVITE
       Contact: sip:sipp@[local_ip]:[local_port]
@@ -67,10 +67,10 @@
   <send>
     <![CDATA[
 
-      ACK sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+      ACK sip:16173333456@jambonz.org SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
       From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
-      To: [service] <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+      To: <sip:16173333456@jambonz.org>[peer_tag_param]
       Call-ID: [call_id]
       CSeq: 1 ACK
       Max-Forwards: 70
@@ -94,10 +94,10 @@
   <send retrans="500">
     <![CDATA[
 
-      BYE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+      BYE sip:16173333456@jambonz.org SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
       From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
-      To: [service] <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+      To: <sip:16173333456@jambonz.org>[peer_tag_param]
       Call-ID: [call_id]
       CSeq: 2 BYE
       Subject: uac-pcap-carrier-success
