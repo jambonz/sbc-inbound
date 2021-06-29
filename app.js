@@ -6,8 +6,11 @@ assert.ok(process.env.JAMBONES_MYSQL_HOST &&
 assert.ok(process.env.DRACHTIO_PORT || process.env.DRACHTIO_HOST, 'missing DRACHTIO_PORT env var');
 assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
 assert.ok(process.env.JAMBONES_TIME_SERIES_HOST, 'missing JAMBONES_TIME_SERIES_HOST env var');
+assert.ok(process.env.JAMBONES_NETWORK_CIDR, 'missing JAMBONES_NETWORK_CIDR env var');
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
+const CIDRMatcher = require('cidr-matcher');
+const matcher = new CIDRMatcher([process.env.JAMBONES_NETWORK_CIDR]);
 const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
@@ -89,14 +92,18 @@ const CallSession = require('./lib/call-session');
 if (process.env.DRACHTIO_HOST) {
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
   srf.on('connect', (err, hp) => {
-    const last = hp.split(',').pop();
-    const arr = /^(.*)\/(.*):(\d+)$/.exec(last);
-    logger.info(`connected to drachtio listening on ${hp}: adding ${arr[2]} to sbc_addresses table`);
-    srf.locals.sipAddress = arr[2];
+    if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
+    logger.info(`connected to drachtio listening on ${hp}`);
+    if (process.env.SBC_ACCOUNT_SID) return;
 
-    /* don't add IP to the general SBC table if this is a static IP for a single account */
-    if (!process.env.SBC_ACCOUNT_SID) {
-      addSbcAddress(arr[2]);
+    const hostports = hp.split(',');
+    for (const hp of hostports) {
+      const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
+      if (arr && 'udp' === arr[1] && !matcher.contains(arr[2])) {
+        logger.info(`adding sbc address ${arr[2]}`);
+        srf.locals.sipAddress = arr[2];
+        addSbcAddress(arr[2]);
+      }
     }
   });
 }
