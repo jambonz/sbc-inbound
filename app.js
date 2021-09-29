@@ -29,6 +29,7 @@ const StatsCollector = require('@jambonz/stats-collector');
 const stats = new StatsCollector(logger);
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
+const setName = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-sip`;
 
 const {
   pool,
@@ -47,7 +48,7 @@ const {
   database: process.env.JAMBONES_MYSQL_DATABASE,
   connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
 }, logger);
-const {createSet, retrieveSet, incrKey, decrKey} = require('@jambonz/realtimedb-helpers')({
+const {createSet, retrieveSet, addToSet, incrKey, decrKey} = require('@jambonz/realtimedb-helpers')({
   host: process.env.JAMBONES_REDIS_HOST || 'localhost',
   port: process.env.JAMBONES_REDIS_PORT || 6379
 }, logger);
@@ -100,9 +101,13 @@ if (process.env.DRACHTIO_HOST) {
     for (const hp of hostports) {
       const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
       if (arr && 'udp' === arr[1] && !matcher.contains(arr[2])) {
-        logger.info(`adding sbc address ${arr[2]}`);
+        logger.info(`adding sbc public address to database: ${arr[2]}`);
         srf.locals.sipAddress = arr[2];
         addSbcAddress(arr[2]);
+      }
+      else if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
+        logger.info(`adding sbc private address to redis: ${arr[2]}`);
+        addToSet(setName, `sip:${arr[2]}:${arr[3]};transport=tcp`);
       }
     }
   });
