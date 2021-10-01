@@ -106,8 +106,9 @@ if (process.env.DRACHTIO_HOST) {
         addSbcAddress(arr[2]);
       }
       else if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
-        logger.info(`adding sbc private address to redis: ${arr[2]}`);
-        addToSet(setName, `sip:${arr[2]}:${arr[3]};transport=tcp`);
+        const hostport = `${arr[2]}:${arr[3]}`;
+        logger.info(`adding sbc private address to redis: ${hostport}`);
+        addToSet(setName, hostport);
       }
     }
   });
