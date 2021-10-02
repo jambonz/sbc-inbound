@@ -27,6 +27,7 @@ const {
 });
 const StatsCollector = require('@jambonz/stats-collector');
 const stats = new StatsCollector(logger);
+const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
 const setName = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-sip`;
@@ -48,7 +49,7 @@ const {
   database: process.env.JAMBONES_MYSQL_DATABASE,
   connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
 }, logger);
-const {createSet, retrieveSet, addToSet, incrKey, decrKey} = require('@jambonz/realtimedb-helpers')({
+const {createSet, retrieveSet, addToSet, removeFromSet, incrKey, decrKey} = require('@jambonz/realtimedb-helpers')({
   host: process.env.JAMBONES_REDIS_HOST || 'localhost',
   port: process.env.JAMBONES_REDIS_PORT || 6379
 }, logger);
@@ -108,7 +109,9 @@ if (process.env.DRACHTIO_HOST) {
       else if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
         const hostport = `${arr[2]}:${arr[3]}`;
         logger.info(`adding sbc private address to redis: ${hostport}`);
-        addToSet(setName, hostport);
+        srf.locals.addToRedis = () => addToSet(setName, hostport);
+        srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
+        srf.locals.addToRedis();
       }
     }
   });
@@ -188,5 +191,17 @@ else {
   }, 30000);
   getActiveRtpServers();
 }
+
+const {lifecycleEmitter} = require('./lib/autoscale-manager')(logger);
+
+/* if we are scaling in, check every so often if call count has gone to zero */
+setInterval(async() => {
+  if (lifecycleEmitter.operationalState === LifeCycleEvents.ScaleIn) {
+    if (0 === activeCallIds.size) {
+      logger.info('scale-in complete now that calls have dried up');
+      lifecycleEmitter.scaleIn();
+    }
+  }
+}, 20000);
 
 module.exports = {srf, logger};
