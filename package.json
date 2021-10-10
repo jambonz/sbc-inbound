@@ -28,7 +28,7 @@
     "@jambonz/db-helpers": "^0.6.12",
     "@jambonz/http-authenticator": "^0.2.0",
     "@jambonz/realtimedb-helpers": "^0.4.8",
-    "@jambonz/rtpengine-utils": "^0.1.12",
+    "@jambonz/rtpengine-utils": "^0.1.14",
     "@jambonz/stats-collector": "^0.1.5",
     "@jambonz/time-series": "^0.1.5",
     "aws-sdk": "^2.848.0",
