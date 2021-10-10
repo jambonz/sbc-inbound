@@ -3,6 +3,6 @@
   "DTLS": "off",
   "SDES": "off",
   "ICE": "remove",
-  "flags": ["media handover"],
+  "flags": ["media handover", "port latching"],
   "rtcp-mux": ["accept"]
 }
