@@ -54,7 +54,10 @@ const {createSet, retrieveSet, addToSet, removeFromSet, incrKey, decrKey} = requ
   port: process.env.JAMBONES_REDIS_PORT || 6379
 }, logger);
 
-const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {emitter: stats});
+const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {
+  emitter: stats,
+  dtmfListenPort: process.env.DTMF_LISTEN_PORT || 22224
+});
 srf.locals = {...srf.locals,
   stats,
   queryCdrs,
@@ -96,7 +99,6 @@ if (process.env.DRACHTIO_HOST) {
   srf.on('connect', (err, hp) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
     logger.info(`connected to drachtio listening on ${hp}`);
-    if (process.env.SBC_ACCOUNT_SID) return;
 
     const hostports = hp.split(',');
     for (const hp of hostports) {
@@ -104,11 +106,12 @@ if (process.env.DRACHTIO_HOST) {
       if (arr && 'udp' === arr[1] && !matcher.contains(arr[2])) {
         logger.info(`adding sbc public address to database: ${arr[2]}`);
         srf.locals.sipAddress = arr[2];
-        addSbcAddress(arr[2]);
+        if (!process.env.SBC_ACCOUNT_SID) addSbcAddress(arr[2]);
       }
       else if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
         const hostport = `${arr[2]}:${arr[3]}`;
         logger.info(`adding sbc private address to redis: ${hostport}`);
+        srf.locals.privateSipAddress = hostport;
         srf.locals.addToRedis = () => addToSet(setName, hostport);
         srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
         srf.locals.addToRedis();
