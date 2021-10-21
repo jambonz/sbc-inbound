@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "node app",
-    "test": "NODE_ENV=test JAMBONES_NETWORK_CIDR='127.0.0.1/32' JAMBONES_HOSTING=1 SBC_ACCOUNT_SID=ed649e33-e771-403a-8c99-1780eabbc803 JAMBONES_TIME_SERIES_HOST=127.0.0.1 JAMBONES_MYSQL_HOST=127.0.0.1 JAMBONES_MYSQL_USER=jambones_test JAMBONES_MYSQL_PASSWORD=jambones_test JAMBONES_MYSQL_DATABASE=jambones_test JAMBONES_REDIS_HOST=localhost JAMBONES_REDIS_PORT=16379 JAMBONES_LOGLEVEL=debug DRACHTIO_SECRET=cymru DRACHTIO_HOST=127.0.0.1 DRACHTIO_PORT=9060 JAMBONES_RTPENGINES=127.0.0.1:12222 JAMBONES_FEATURE_SERVERS=172.38.0.11 node test/ ",
+    "test": "NODE_ENV=test JAMBONES_NETWORK_CIDR='127.0.0.1/32' JAMBONES_HOSTING=1 SBC_ACCOUNT_SID=ed649e33-e771-403a-8c99-1780eabbc803 JAMBONES_TIME_SERIES_HOST=127.0.0.1 JAMBONES_MYSQL_HOST=127.0.0.1 JAMBONES_MYSQL_USER=jambones_test JAMBONES_MYSQL_PASSWORD=jambones_test JAMBONES_MYSQL_DATABASE=jambones_test JAMBONES_REDIS_HOST=localhost JAMBONES_REDIS_PORT=16379 JAMBONES_LOGLEVEL=error DRACHTIO_SECRET=cymru DRACHTIO_HOST=127.0.0.1 DRACHTIO_PORT=9060 JAMBONES_RTPENGINES=127.0.0.1:12222 JAMBONES_FEATURE_SERVERS=172.38.0.11 node test/ ",
     "coverage": "./node_modules/.bin/nyc --reporter html --report-dir ./coverage npm run test",
     "jslint": "eslint app.js lib"
   },
@@ -28,7 +28,7 @@
     "@jambonz/db-helpers": "^0.6.12",
     "@jambonz/http-authenticator": "^0.2.0",
     "@jambonz/realtimedb-helpers": "^0.4.8",
-    "@jambonz/rtpengine-utils": "^0.1.12",
+    "@jambonz/rtpengine-utils": "^0.1.14",
     "@jambonz/stats-collector": "^0.1.5",
     "@jambonz/time-series": "^0.1.5",
     "aws-sdk": "^2.848.0",
@@ -39,7 +39,7 @@
     "cidr-matcher": "^2.1.1",
     "debug": "^4.3.1",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.4.49",
+    "drachtio-srf": "^4.4.55",
     "pino": "^6.8.0",
     "rtpengine-client": "^0.2.0"
   },
