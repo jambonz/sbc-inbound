@@ -31,7 +31,7 @@
     "@jambonz/rtpengine-utils": "^0.1.17",
     "@jambonz/stats-collector": "^0.1.5",
     "@jambonz/time-series": "^0.1.5",
-    "aws-sdk": "^2.848.0",
+    "aws-sdk": "^2.1009.0",
     "bent": "^7.3.12",
     "express": "^4.17.1",
     "verify-aws-sns-signature": "^0.0.6",
