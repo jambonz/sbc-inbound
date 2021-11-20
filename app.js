@@ -83,7 +83,18 @@ srf.locals = {...srf.locals,
     retrieveSet
   }
 };
-srf.locals.getFeatureServer = require('./lib/fs-tracking')(srf, logger);
+const {
+  wasOriginatedFromCarrier,
+  getApplicationForDidAndCarrier,
+  getOutboundGatewayForRefer
+} = require('./lib/db-utils')(srf, logger);
+srf.locals = {
+  ...srf.locals,
+  wasOriginatedFromCarrier,
+  getApplicationForDidAndCarrier,
+  getOutboundGatewayForRefer,
+  getFeatureServer: require('./lib/fs-tracking')(srf, logger)
+};
 const activeCallIds = srf.locals.activeCallIds;
 
 const {
