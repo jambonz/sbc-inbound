@@ -183,7 +183,7 @@ const arrayCompare = (a, b) => {
   return true;
 };
 
-const serviceName = process.env.JAMBONES_RTPENGINES || process.envK8S_RTPENGINE_SERVICE_NAME;
+const serviceName = process.env.JAMBONES_RTPENGINES || process.env.K8S_RTPENGINE_SERVICE_NAME;
 if (serviceName) {
   logger.info(`rtpengine(s) will be found at: ${serviceName}`);
   setRtpEngines([serviceName]);
