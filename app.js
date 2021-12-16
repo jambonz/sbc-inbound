@@ -10,7 +10,6 @@ assert.ok(process.env.JAMBONES_NETWORK_CIDR, 'missing JAMBONES_NETWORK_CIDR env 
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
 const CIDRMatcher = require('cidr-matcher');
-const matcher = new CIDRMatcher([process.env.JAMBONES_NETWORK_CIDR]);
 const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
@@ -31,6 +30,11 @@ const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
 const setName = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-sip`;
+
+const cidrs = process.env.JAMBONES_NETWORK_CIDR
+  .split(',')
+  .map((s) => s.trim());
+const matcher = new CIDRMatcher(cidrs);
 
 const {
   pool,
