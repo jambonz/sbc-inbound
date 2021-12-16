@@ -185,6 +185,7 @@ const arrayCompare = (a, b) => {
 
 /* update rtpengines periodically */
 if (process.env.JAMBONES_RTPENGINES) {
+  logger.info(`rtpengine(s) will be found at ${process.env.JAMBONES_RTPENGINES}`);
   setRtpEngines([process.env.JAMBONES_RTPENGINES]);
 }
 else {
@@ -203,11 +204,11 @@ else {
       logger.error({err}, 'Error setting new rtpengines');
     }
   };
-
   setInterval(() => {
     getActiveRtpServers();
   }, 30000);
   getActiveRtpServers();
+
 }
 
 const {lifecycleEmitter} = require('./lib/autoscale-manager')(logger);
