@@ -135,6 +135,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   });
 }
 else {
+  logger.info(`listening in outbound mode on port ${process.env.DRACHTIO_PORT}`);
   srf.listen({port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
 }
 if (process.env.NODE_ENV === 'test') {
