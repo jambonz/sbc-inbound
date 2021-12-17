@@ -109,7 +109,7 @@ const {
 } = require('./lib/middleware')(srf, logger);
 const CallSession = require('./lib/call-session');
 
-if (process.env.DRACHTIO_HOST) {
+if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
   srf.on('connect', (err, hp) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
