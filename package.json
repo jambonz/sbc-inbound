@@ -25,23 +25,24 @@
     "jslint": "eslint app.js lib"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.6.12",
+    "@jambonz/db-helpers": "^0.6.14",
     "@jambonz/http-authenticator": "^0.2.0",
+    "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.4.8",
     "@jambonz/rtpengine-utils": "^0.1.17",
-    "@jambonz/stats-collector": "^0.1.5",
+    "@jambonz/stats-collector": "^0.1.6",
     "@jambonz/time-series": "^0.1.5",
-    "aws-sdk": "^2.848.0",
+    "aws-sdk": "^2.1036.0",
     "bent": "^7.3.12",
-    "express": "^4.17.1",
-    "verify-aws-sns-signature": "^0.0.6",
-    "xml2js": "^0.4.23",
     "cidr-matcher": "^2.1.1",
-    "debug": "^4.3.1",
+    "debug": "^4.3.3",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.59",
-    "pino": "^6.8.0",
-    "rtpengine-client": "^0.2.0"
+    "express": "^4.17.1",
+    "pino": "^7.4.1",
+    "rtpengine-client": "^0.2.0",
+    "verify-aws-sns-signature": "^0.0.6",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "clear-module": "^4.1.1",
