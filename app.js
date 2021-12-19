@@ -21,6 +21,7 @@ const {
   AlertType
 } = require('@jambonz/time-series')(logger, {
   host: process.env.JAMBONES_TIME_SERIES_HOST,
+  port: process.env.JAMBONES_TIME_SERIES_PORT || 8086,
   commitSize: 50,
   commitInterval: 'test' === process.env.NODE_ENV ? 7 : 20
 });
