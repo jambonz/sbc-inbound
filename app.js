@@ -218,4 +218,12 @@ setInterval(async() => {
   }
 }, 20000);
 
+process.on('SIGUSR2', handle.bind(null, removeFromSet, setName));
+process.on('SIGTERM', handle.bind(null, removeFromSet, setName));
+
+function handle(removeFromSet, setName, signal) {
+  logger.info(`got signal ${signal}, removing ${srf.locals.privateSipAddress} from set ${setName}`);
+  removeFromSet(setName, srf.locals.privateSipAddress);
+}
+
 module.exports = {srf, logger};
