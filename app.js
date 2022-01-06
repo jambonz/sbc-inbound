@@ -10,7 +10,6 @@ assert.ok(process.env.JAMBONES_NETWORK_CIDR, 'missing JAMBONES_NETWORK_CIDR env 
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
 const CIDRMatcher = require('cidr-matcher');
-const matcher = new CIDRMatcher([process.env.JAMBONES_NETWORK_CIDR]);
 const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
@@ -22,6 +21,7 @@ const {
   AlertType
 } = require('@jambonz/time-series')(logger, {
   host: process.env.JAMBONES_TIME_SERIES_HOST,
+  port: process.env.JAMBONES_TIME_SERIES_PORT || 8086,
   commitSize: 50,
   commitInterval: 'test' === process.env.NODE_ENV ? 7 : 20
 });
@@ -31,6 +31,11 @@ const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
 const setName = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-sip`;
+
+const cidrs = process.env.JAMBONES_NETWORK_CIDR
+  .split(',')
+  .map((s) => s.trim());
+const matcher = new CIDRMatcher(cidrs);
 
 const {
   pool,
@@ -105,7 +110,7 @@ const {
 } = require('./lib/middleware')(srf, logger);
 const CallSession = require('./lib/call-session');
 
-if (process.env.DRACHTIO_HOST) {
+if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
   srf.on('connect', (err, hp) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
@@ -131,6 +136,7 @@ if (process.env.DRACHTIO_HOST) {
   });
 }
 else {
+  logger.info(`listening in outbound mode on port ${process.env.DRACHTIO_PORT}`);
   srf.listen({port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
 }
 if (process.env.NODE_ENV === 'test') {
@@ -163,6 +169,11 @@ srf.use((req, res, next, err) => {
   res.send(500);
 });
 
+const PORT = process.env.HTTP_PORT || 3000;
+const getCount = () => activeCallIds.size;
+const healthCheck = require('@jambonz/http-health-check');
+healthCheck({port: PORT, logger, path: '/', fn: getCount});
+
 /* update call stats periodically */
 setInterval(() => {
   stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
@@ -179,11 +190,13 @@ const arrayCompare = (a, b) => {
   return true;
 };
 
-/* update rtpengines periodically */
-if (process.env.JAMBONES_RTPENGINES) {
-  setRtpEngines([process.env.JAMBONES_RTPENGINES]);
+const serviceName = process.env.JAMBONES_RTPENGINES || process.env.K8S_RTPENGINE_SERVICE_NAME;
+if (serviceName) {
+  logger.info(`rtpengine(s) will be found at: ${serviceName}`);
+  setRtpEngines([serviceName]);
 }
 else {
+  /* update rtpengines periodically */
   const getActiveRtpServers = async() => {
     try {
       const set = await retrieveSet(setNameRtp);
@@ -199,11 +212,11 @@ else {
       logger.error({err}, 'Error setting new rtpengines');
     }
   };
-
   setInterval(() => {
     getActiveRtpServers();
   }, 30000);
   getActiveRtpServers();
+
 }
 
 const {lifecycleEmitter} = require('./lib/autoscale-manager')(logger);
