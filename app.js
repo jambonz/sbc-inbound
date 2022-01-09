@@ -6,10 +6,9 @@ assert.ok(process.env.JAMBONES_MYSQL_HOST &&
 assert.ok(process.env.DRACHTIO_PORT || process.env.DRACHTIO_HOST, 'missing DRACHTIO_PORT env var');
 assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
 assert.ok(process.env.JAMBONES_TIME_SERIES_HOST, 'missing JAMBONES_TIME_SERIES_HOST env var');
-assert.ok(process.env.JAMBONES_NETWORK_CIDR, 'missing JAMBONES_NETWORK_CIDR env var');
+assert.ok(process.env.JAMBONES_NETWORK_CIDR || process.env.K8S, 'missing JAMBONES_NETWORK_CIDR env var');
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
-const CIDRMatcher = require('cidr-matcher');
 const opts = Object.assign({
   timestamp: () => {return `, "time": "${new Date().toISOString()}"`;}
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
@@ -31,11 +30,6 @@ const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
 const setName = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-sip`;
-
-const cidrs = process.env.JAMBONES_NETWORK_CIDR
-  .split(',')
-  .map((s) => s.trim());
-const matcher = new CIDRMatcher(cidrs);
 
 const {
   pool,
@@ -111,6 +105,12 @@ const {
 const CallSession = require('./lib/call-session');
 
 if (process.env.DRACHTIO_HOST && !process.env.K8S) {
+  const CIDRMatcher = require('cidr-matcher');
+  const cidrs = process.env.JAMBONES_NETWORK_CIDR
+    .split(',')
+    .map((s) => s.trim());
+  const matcher = new CIDRMatcher(cidrs);
+
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
   srf.on('connect', (err, hp) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
