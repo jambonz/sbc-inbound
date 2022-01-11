@@ -25,13 +25,13 @@
     "jslint": "eslint app.js lib"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.6.14",
+    "@jambonz/db-helpers": "^0.6.16",
     "@jambonz/http-authenticator": "^0.2.0",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.4.8",
-    "@jambonz/rtpengine-utils": "^0.1.22",
+    "@jambonz/realtimedb-helpers": "^0.4.9",
+    "@jambonz/rtpengine-utils": "^0.2.0",
     "@jambonz/stats-collector": "^0.1.6",
-    "@jambonz/time-series": "^0.1.5",
+    "@jambonz/time-series": "^0.1.6",
     "aws-sdk": "^2.1036.0",
     "bent": "^7.3.12",
     "cidr-matcher": "^2.1.1",
