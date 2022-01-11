@@ -56,7 +56,7 @@ const {createSet, retrieveSet, addToSet, removeFromSet, incrKey, decrKey} = requ
 const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {
   emitter: stats,
   dtmfListenPort: process.env.DTMF_LISTEN_PORT || 22224,
-  useWS: process.env.RTPENGINE_USE_WS
+  protocol: process.env.K8S || process.env.RTPENGINE_USE_TCP_NG ? 'tcp' : 'udp'
 });
 srf.locals = {...srf.locals,
   stats,
