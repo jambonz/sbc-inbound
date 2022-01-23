@@ -170,10 +170,12 @@ srf.use((req, res, next, err) => {
   res.send(500);
 });
 
-const PORT = process.env.HTTP_PORT || 3000;
-const getCount = () => activeCallIds.size;
-const healthCheck = require('@jambonz/http-health-check');
-healthCheck({port: PORT, logger, path: '/', fn: getCount});
+if (process.env.K8S) {
+  const PORT = process.env.HTTP_PORT || 3000;
+  const getCount = () => activeCallIds.size;
+  const healthCheck = 
+  healthCheck({port: PORT, logger, path: '/', fn: getCount});
+}
 
 /* update call stats periodically */
 setInterval(() => {
