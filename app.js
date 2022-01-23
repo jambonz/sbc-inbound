@@ -186,15 +186,16 @@ if ('test' !== process.env.NODE_ENV) {
 
 const lookupRtpServiceEndpoints = (lookup, serviceName) => {
   logger.info(`dns lookup for ${serviceName}..`);
-  lookup(serviceName, (err, addresses) => {
+  lookup(serviceName, {family: 4, all: true}, (err, addresses) => {
     if (err) {
       logger.error({err}, `Error looking up ${serviceName}`);
       return;
     }
     logger.info({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
-    if (!equalsIgnoreOrder(addresses, rtpServers)) {
+    const addrs = addresses.map((a) => a.address);
+    if (!equalsIgnoreOrder(addrs, rtpServers)) {
       rtpServers.length = 0;
-      Array.prototype.push.apply(rtpServers, addresses);
+      Array.prototype.push.apply(rtpServers, addrs);
       logger.info({rtpServers}, 'rtpserver endpoints have been updated');
       setRtpEngines(rtpServers.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
     }
