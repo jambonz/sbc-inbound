@@ -185,13 +185,13 @@ if ('test' !== process.env.NODE_ENV) {
 }
 
 const lookupRtpServiceEndpoints = (lookup, serviceName) => {
-  logger.info(`dns lookup for ${serviceName}..`);
+  logger.debug(`dns lookup for ${serviceName}..`);
   lookup(serviceName, {family: 4, all: true}, (err, addresses) => {
     if (err) {
       logger.error({err}, `Error looking up ${serviceName}`);
       return;
     }
-    logger.info({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
+    logger.debug({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
     const addrs = addresses.map((a) => a.address);
     if (!equalsIgnoreOrder(addrs, rtpServers)) {
       rtpServers.length = 0;
@@ -209,7 +209,7 @@ if (process.env.K8S_RTPENGINE_SERVICE_NAME) {
   logger.info(`rtpengine(s) will be found at dns name: ${svc}`);
   const {lookup} = require('dns');
   lookupRtpServiceEndpoints(lookup, svc);
-  setInterval(lookupRtpServiceEndpoints.bind(lookup, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 10000);
+  setInterval(lookupRtpServiceEndpoints.bind(null, lookup, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 10000);
 }
 else if (process.env.JAMBONES_RTPENGINES) {
   /* static list of rtpengines */
