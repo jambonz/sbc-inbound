@@ -184,9 +184,9 @@ if ('test' !== process.env.NODE_ENV) {
   }, 20000);
 }
 
-const lookupRtpServiceEndpoints = (resolve4, serviceName) => {
+const lookupRtpServiceEndpoints = (lookup, serviceName) => {
   logger.info(`dns lookup for ${serviceName}..`);
-  resolve4(serviceName, (err, addresses) => {
+  lookup(serviceName, (err, addresses) => {
     if (err) {
       logger.error({err}, `Error looking up ${serviceName}`);
       return;
@@ -206,9 +206,9 @@ if (process.env.K8S_RTPENGINE_SERVICE_NAME) {
   const arr = /^(.*):(\d+)$/.exec(process.env.K8S_RTPENGINE_SERVICE_NAME);
   const svc = arr[1];
   logger.info(`rtpengine(s) will be found at dns name: ${svc}`);
-  const {resolve4} = require('dns');
-  lookupRtpServiceEndpoints(resolve4, svc);
-  setInterval(() => lookupRtpServiceEndpoints.bind(resolve4, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 20000);
+  const {lookup} = require('dns');
+  lookupRtpServiceEndpoints(lookup, svc);
+  setInterval(() => lookupRtpServiceEndpoints.bind(lookup, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 20000);
 }
 else if (process.env.JAMBONES_RTPENGINES) {
   /* static list of rtpengines */
