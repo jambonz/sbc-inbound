@@ -209,7 +209,7 @@ if (process.env.K8S_RTPENGINE_SERVICE_NAME) {
   logger.info(`rtpengine(s) will be found at dns name: ${svc}`);
   const {lookup} = require('dns');
   lookupRtpServiceEndpoints(lookup, svc);
-  setInterval(() => lookupRtpServiceEndpoints.bind(lookup, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 20000);
+  setInterval(lookupRtpServiceEndpoints.bind(lookup, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 10000);
 }
 else if (process.env.JAMBONES_RTPENGINES) {
   /* static list of rtpengines */
