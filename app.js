@@ -188,9 +188,10 @@ if ('test' !== process.env.NODE_ENV) {
 if (process.env.K8S_RTPENGINE_SERVICE_NAME) {
   /* poll dns for endpoints every so often */
   const arr = /^(.*):(\d+)$/.exec(process.env.K8S_RTPENGINE_SERVICE_NAME);
-  const svc = arr[1]l
+  const svc = arr[1];
   logger.info(`rtpengine(s) will be found at dns name: ${svc}`);
   const {resolve4} = require('dns');
+  lookupRtpServiceEndpoints(resolve4, svc);
   setInterval(() => lookupRtpServiceEndpoints.bind(resolve4, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 20000);
 }
 else if (process.env.JAMBONES_RTPENGINES) {
