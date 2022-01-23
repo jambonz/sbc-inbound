@@ -26,6 +26,7 @@ const {
 });
 const StatsCollector = require('@jambonz/stats-collector');
 const stats = new StatsCollector(logger);
+const {equalsIgnoreOrder} = require('./lib/utils');
 const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
@@ -56,7 +57,7 @@ const {createSet, retrieveSet, addToSet, removeFromSet, incrKey, decrKey} = requ
 const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {
   emitter: stats,
   dtmfListenPort: process.env.DTMF_LISTEN_PORT || 22224,
-  protocol: process.env.RTPENGINE_NG_PROTOCOL || (process.env.K8S ? 'ws' : 'udp')
+  protocol: 'udp'
 });
 srf.locals = {...srf.locals,
   stats,
@@ -173,39 +174,55 @@ srf.use((req, res, next, err) => {
 if (process.env.K8S) {
   const PORT = process.env.HTTP_PORT || 3000;
   const getCount = () => activeCallIds.size;
-  const healthCheck = 
+  const healthCheck = require('@jambonz/http-health-check');
   healthCheck({port: PORT, logger, path: '/', fn: getCount});
 }
+if ('test' !== process.env.NODE_ENV) {
+  /* update call stats periodically */
+  setInterval(() => {
+    stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
+  }, 20000);
+}
 
-/* update call stats periodically */
-setInterval(() => {
-  stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
-}, 20000);
-
-const arrayCompare = (a, b) => {
-  if (a.length !== b.length) return false;
-  const uniqueValues = new Set([...a, ...b]);
-  for (const v of uniqueValues) {
-    const aCount = a.filter((e) => e === v).length;
-    const bCount = b.filter((e) => e === v).length;
-    if (aCount !== bCount) return false;
-  }
-  return true;
+const lookupRtpServiceEndpoints = (lookup, serviceName) => {
+  logger.debug(`dns lookup for ${serviceName}..`);
+  lookup(serviceName, {family: 4, all: true}, (err, addresses) => {
+    if (err) {
+      logger.error({err}, `Error looking up ${serviceName}`);
+      return;
+    }
+    logger.debug({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
+    const addrs = addresses.map((a) => a.address);
+    if (!equalsIgnoreOrder(addrs, rtpServers)) {
+      rtpServers.length = 0;
+      Array.prototype.push.apply(rtpServers, addrs);
+      logger.info({rtpServers}, 'rtpserver endpoints have been updated');
+      setRtpEngines(rtpServers.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
+    }
+  });
 };
 
-const serviceName = process.env.JAMBONES_RTPENGINES || process.env.K8S_RTPENGINE_SERVICE_NAME;
-if (serviceName) {
-  logger.info(`rtpengine(s) will be found at: ${serviceName}`);
-  setRtpEngines([serviceName]);
+if (process.env.K8S_RTPENGINE_SERVICE_NAME) {
+  /* poll dns for endpoints every so often */
+  const arr = /^(.*):(\d+)$/.exec(process.env.K8S_RTPENGINE_SERVICE_NAME);
+  const svc = arr[1];
+  logger.info(`rtpengine(s) will be found at dns name: ${svc}`);
+  const {lookup} = require('dns');
+  lookupRtpServiceEndpoints(lookup, svc);
+  setInterval(lookupRtpServiceEndpoints.bind(null, lookup, svc), process.env.RTPENGINE_DNS_POLL_INTERVAL || 10000);
+}
+else if (process.env.JAMBONES_RTPENGINES) {
+  /* static list of rtpengines */
+  setRtpEngines([process.env.JAMBONES_RTPENGINES]);
 }
 else {
-  /* update rtpengines periodically */
+  /* poll redis periodically for rtpengines that have registered via OPTIONS ping */
   const getActiveRtpServers = async() => {
     try {
       const set = await retrieveSet(setNameRtp);
       const newArray = Array.from(set);
       logger.debug({newArray, rtpServers}, 'getActiveRtpServers');
-      if (!arrayCompare(newArray, rtpServers)) {
+      if (!equalsIgnoreOrder(newArray, rtpServers)) {
         logger.info({newArray}, 'resetting active rtpengines');
         setRtpEngines(newArray.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
         rtpServers.length = 0;
