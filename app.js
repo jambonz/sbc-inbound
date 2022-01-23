@@ -221,7 +221,13 @@ else {
 }
 
 const lookupRtpServiceEndpoints = (resolve4, serviceName) => {
+  logger.info(`dns lookup for ${serviceName}..`);
   resolve4(serviceName, (err, addresses) => {
+    if (err) {
+      logger.error({err}, `Error looking up ${serviceName}`);
+      return;
+    }
+    logger.info({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
     if (!equalsIgnoreOrder(addresses, rtpServers)) {
       rtpServers.length = 0;
       Array.prototype.push.apply(rtpServers, addresses);
