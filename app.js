@@ -184,6 +184,22 @@ if ('test' !== process.env.NODE_ENV) {
   }, 20000);
 }
 
+const lookupRtpServiceEndpoints = (resolve4, serviceName) => {
+  logger.info(`dns lookup for ${serviceName}..`);
+  resolve4(serviceName, (err, addresses) => {
+    if (err) {
+      logger.error({err}, `Error looking up ${serviceName}`);
+      return;
+    }
+    logger.info({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
+    if (!equalsIgnoreOrder(addresses, rtpServers)) {
+      rtpServers.length = 0;
+      Array.prototype.push.apply(rtpServers, addresses);
+      logger.info({rtpServers}, 'rtpserver endpoints have been updated');
+      setRtpEngines(rtpServers.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
+    }
+  });
+};
 
 if (process.env.K8S_RTPENGINE_SERVICE_NAME) {
   /* poll dns for endpoints every so often */
@@ -221,23 +237,6 @@ else {
   getActiveRtpServers();
 
 }
-
-const lookupRtpServiceEndpoints = (resolve4, serviceName) => {
-  logger.info(`dns lookup for ${serviceName}..`);
-  resolve4(serviceName, (err, addresses) => {
-    if (err) {
-      logger.error({err}, `Error looking up ${serviceName}`);
-      return;
-    }
-    logger.info({addresses, rtpServers}, `dns lookup for ${serviceName} returned`);
-    if (!equalsIgnoreOrder(addresses, rtpServers)) {
-      rtpServers.length = 0;
-      Array.prototype.push.apply(rtpServers, addresses);
-      logger.info({rtpServers}, 'rtpserver endpoints have been updated');
-      setRtpEngines(rtpServers.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
-    }
-  });
-};
 
 const {lifecycleEmitter} = require('./lib/autoscale-manager')(logger);
 
