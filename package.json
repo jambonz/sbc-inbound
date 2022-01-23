@@ -3,7 +3,7 @@
   "version": "v0.7.1",
   "main": "app.js",
   "engines": {
-    "node": ">= 10.16.0"
+    "node": ">= 14"
   },
   "keywords": [
     "sip",
@@ -46,8 +46,8 @@
   },
   "devDependencies": {
     "clear-module": "^4.1.1",
-    "eslint": "^7.15.0",
-    "eslint-plugin-promise": "^4.2.1",
+    "eslint": "^7.32.0",
+    "eslint-plugin-promise": "^6.0.0",
     "nyc": "^15.1.0",
     "tape": "^4.13.3"
   }
