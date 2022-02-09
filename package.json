@@ -28,7 +28,7 @@
     "@jambonz/db-helpers": "^0.6.16",
     "@jambonz/http-authenticator": "^0.2.0",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.4.22",
+    "@jambonz/realtimedb-helpers": "^0.4.24",
     "@jambonz/rtpengine-utils": "^0.3.1",
     "@jambonz/stats-collector": "^0.1.6",
     "@jambonz/time-series": "^0.1.6",
