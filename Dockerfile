@@ -1,4 +1,4 @@
-FROM node:17.7.1-slim
+FROM node:17-slim
 RUN apt-get update && apt-get install -y \
     netcat
 WORKDIR /opt/app/
