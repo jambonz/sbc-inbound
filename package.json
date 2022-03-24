@@ -38,7 +38,7 @@
     "debug": "^4.3.3",
     "drachtio-fn-b2b-sugar": "0.0.12",
     "drachtio-srf": "^4.4.59",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "husky": "^7.0.4",
     "pino": "^7.4.1",
     "rtpengine-client": "^0.2.0",
