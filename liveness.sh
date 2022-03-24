@@ -10,7 +10,11 @@ then
 fi
 
 HTTP_SERVER_PORT="${HTTP_PORT:-3000}"
-printf 'GET /system-health HTTP/1.1\r\nHost: localhost\r\n\r\n' | nc -v -z localhost 3000
+
+printf 'GET /system-health HTTP/1.1\r\nHost: localhost\r\n\r\n' | nc -v localhost 3000 | grep calls
+
+# grep will automatically exit with 1 if string is not matched, however, will leave that call there in case 
+# we pivot to pipe to dev/null
 
 if [ $? != 0 ]
 then
