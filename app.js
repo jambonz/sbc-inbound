@@ -14,6 +14,7 @@ const opts = Object.assign({
 }, {level: process.env.JAMBONES_LOGLEVEL || 'info'});
 const logger = require('pino')(opts);
 const {
+  writeCallCount,
   queryCdrs,
   writeCdrs,
   writeAlerts,
@@ -61,6 +62,7 @@ const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], lo
 });
 srf.locals = {...srf.locals,
   stats,
+  writeCallCount,
   queryCdrs,
   writeCdrs,
   writeAlerts,
