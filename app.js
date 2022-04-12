@@ -188,19 +188,21 @@ if (process.env.K8S || process.env.HTTP_PORT) {
   const PORT = process.env.HTTP_PORT || 3000;
   const healthCheck = require('@jambonz/http-health-check');
 
+  const getCount = () => srf.locals.activeCallIds.size;
+
   createHealthCheckApp(PORT, logger)
     .then((app) => {
       healthCheck({
         app,
         logger,
         path: '/',
-        fn: () => activeCallIds.size
+        fn: getCount
       });
       healthCheck({
         app,
         logger,
         path: '/system-health',
-        fn: systemHealth.bind(null, redisClient, ping, activeCallIds.size)
+        fn: systemHealth.bind(null, redisClient, ping, getCount)
       });
       return;
     })
