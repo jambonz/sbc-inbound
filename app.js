@@ -27,7 +27,7 @@ const {
 });
 const StatsCollector = require('@jambonz/stats-collector');
 const stats = new StatsCollector(logger);
-const {equalsIgnoreOrder} = require('./lib/utils');
+const {equalsIgnoreOrder, createHealthCheckApp, systemHealth} = require('./lib/utils');
 const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
@@ -50,10 +50,19 @@ const {
   database: process.env.JAMBONES_MYSQL_DATABASE,
   connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
 }, logger);
-const {createSet, retrieveSet, addToSet, removeFromSet, incrKey, decrKey} = require('@jambonz/realtimedb-helpers')({
+const {
+  client: redisClient,
+  createSet,
+  retrieveSet,
+  addToSet,
+  removeFromSet,
+  incrKey,
+  decrKey} = require('@jambonz/realtimedb-helpers')({
   host: process.env.JAMBONES_REDIS_HOST || 'localhost',
   port: process.env.JAMBONES_REDIS_PORT || 6379
 }, logger);
+
+let srfHealth = false;
 
 const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {
   emitter: stats,
@@ -119,6 +128,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   srf.on('connect', (err, hp) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
     logger.info(`connected to drachtio listening on ${hp}`);
+    srfHealth = true;
 
     const hostports = hp.split(',');
     for (const hp of hostports) {
@@ -140,7 +150,10 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   });
 }
 else {
-  logger.info(`listening in outbound mode on port ${process.env.DRACHTIO_PORT}`);
+  srf.on('listening', () => {
+    srfHealth = true;
+    logger.info(`listening in outbound mode on port ${process.env.DRACHTIO_PORT}`);
+  });
   srf.listen({port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
 }
 if (process.env.NODE_ENV === 'test') {
@@ -175,9 +188,27 @@ srf.use((req, res, next, err) => {
 
 if (process.env.K8S) {
   const PORT = process.env.HTTP_PORT || 3000;
-  const getCount = () => activeCallIds.size;
   const healthCheck = require('@jambonz/http-health-check');
-  healthCheck({port: PORT, logger, path: '/', fn: getCount});
+
+  createHealthCheckApp(PORT, logger)
+    .then((app) => {
+      healthCheck({
+        app,
+        logger,
+        path: '/',
+        fn: () => activeCallIds.size
+      });
+      healthCheck({
+        app,
+        logger,
+        path: '/system-health',
+        fn: systemHealth(redisClient, pool.promise(), activeCallIds.size, srfHealth)
+      });
+      return;
+    })
+    .catch((err) => {
+      logger.error({err}, 'Error creating health check server');
+    });
 }
 if ('test' !== process.env.NODE_ENV) {
   /* update call stats periodically */
