@@ -1,8 +1,7 @@
 const test = require('tape');
-const { output, sippUac } = require('./sipp')('test_sbc-inbound');
-const debug = require('debug')('drachtio:sbc-inbound');
-const clearModule = require('clear-module');
-const consoleLogger = {error: console.error, info: console.log, debug: console.log};
+const { sippUac } = require('./sipp')('test_sbc-inbound');
+const bent = require('bent');
+const getJSON = bent('json');
 
 process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
@@ -28,6 +27,12 @@ test('incoming call tests', async(t) => {
   
   try {
     await connect(srf);
+
+    let obj = await getJSON('http://127.0.0.1:3050/');
+    t.ok(obj.calls === 0, 'HTTP GET / works (current call count)')
+    obj = await getJSON('http://127.0.0.1:3050/system-health');
+    t.ok(obj.calls === 0, 'HTTP GET /system-health works (health check)')
+
     await sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     t.pass('incoming call from carrier completed successfully');
   
