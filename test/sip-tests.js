@@ -39,6 +39,9 @@ test('incoming call tests', async(t) => {
     await sippUac('uac-pcap-pbx-success.xml', '172.38.0.21');
     t.pass('incoming call from account-level carrier completed successfully');
   
+    await sippUac('uac-did-regex-match.xml', '172.38.0.20');
+    t.pass('incoming call matched by trailing wildcard *');
+  
     await sippUac('uac-pcap-device-success.xml', '172.38.0.30');
     t.pass('incoming call from authenticated device completed successfully');
   
@@ -60,7 +63,7 @@ test('incoming call tests', async(t) => {
     await waitFor(10);
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
     console.log(`cdrs: ${JSON.stringify(res)}`);
-    t.ok(6 === res.total, 'successfully wrote 6 cdrs for calls');
+    t.ok(7 === res.total, 'successfully wrote 7 cdrs for calls');
 
     srf.disconnect();
     t.end();

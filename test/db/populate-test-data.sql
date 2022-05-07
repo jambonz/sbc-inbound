@@ -57,4 +57,11 @@ insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_s
 values ('999a5339-c62c-4075-9e19-f4de70a96597', '16173333456', '287c1452-620d-4195-9f19-c9814ef90d78', 'ed649e33-e771-403a-8c99-1780eabbc803');
 
 insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid)
+values ('29543d4e-d959-4a25-836a-cde7161cd7d5', '1508222*', '287c1452-620d-4195-9f19-c9814ef90d78', 'ed649e33-e771-403a-8c99-1780eabbc803');
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid)
+values ('dddd5c34-feae-4d70-98af-bb4d1f8dc965', '1508*', '287c1452-620d-4195-9f19-c9814ef90d78', 'ed649e33-e771-403a-8c99-1780eabbc803');
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid)
+values ('d458bf7a-bcea-47b2-ac96-66dfc9c5c220', '150822233*', '287c1452-620d-4195-9f19-c9814ef90d78', 'ed649e33-e771-403a-8c99-1780eabbc803');
+
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid)
 values ('f7ad205d-b92f-4363-8160-f8b5216b40d3', '15083871234', '287c1452-620d-4195-9f19-c9814ef90d78', 'd7cc37cb-d152-49ef-a51b-485f6e917089');
