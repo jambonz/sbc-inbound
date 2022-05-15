@@ -37,7 +37,7 @@
     "cidr-matcher": "^2.1.1",
     "debug": "^4.3.3",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.4.59",
+    "drachtio-srf": "^4.5.0",
     "express": "^4.17.3",
     "husky": "^7.0.4",
     "pino": "^7.4.1",
