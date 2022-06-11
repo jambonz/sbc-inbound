@@ -26,30 +26,27 @@
   },
   "dependencies": {
     "@jambonz/db-helpers": "^0.6.18",
-    "@jambonz/http-authenticator": "^0.2.0",
+    "@jambonz/http-authenticator": "^0.2.1",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.4.24",
+    "@jambonz/realtimedb-helpers": "^0.4.28",
     "@jambonz/rtpengine-utils": "^0.3.1",
     "@jambonz/stats-collector": "^0.1.6",
     "@jambonz/time-series": "^0.1.9",
-    "aws-sdk": "^2.1036.0",
+    "aws-sdk": "^2.1152.0",
     "bent": "^7.3.12",
     "cidr-matcher": "^2.1.1",
-    "debug": "^4.3.3",
+    "debug": "^4.3.4",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.4.59",
-    "express": "^4.17.3",
-    "husky": "^7.0.4",
-    "pino": "^7.4.1",
-    "rtpengine-client": "^0.2.0",
+    "drachtio-srf": "^4.5.0",
+    "express": "^4.18.1",
+    "pino": "^7.11.0",
     "verify-aws-sns-signature": "^0.0.6",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "clear-module": "^4.1.1",
     "eslint": "^7.32.0",
     "eslint-plugin-promise": "^4.3.1",
     "nyc": "^15.1.0",
-    "tape": "^4.13.3"
+    "tape": "^4.15.1"
   }
 }
