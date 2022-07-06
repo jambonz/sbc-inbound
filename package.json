@@ -42,7 +42,7 @@
     "pino": "^7.11.0",
     "sdp-transform": "^2.14.1",
     "uuid": "^8.3.2",
-    "verify-aws-sns-signature": "^0.0.6",
+    "verify-aws-sns-signature": "^0.0.7",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
