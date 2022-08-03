@@ -111,6 +111,7 @@ const activeCallIds = srf.locals.activeCallIds;
 
 const {
   initLocals,
+  handleSipRec,
   identifyAccount,
   checkLimits,
   challengeDeviceCalls
@@ -161,7 +162,13 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 /* install middleware */
-srf.use('invite', [initLocals, identifyAccount, checkLimits, challengeDeviceCalls]);
+srf.use('invite', [
+  initLocals,
+  handleSipRec,
+  identifyAccount,
+  checkLimits,
+  challengeDeviceCalls
+]);
 
 srf.invite((req, res) => {
   if (req.has('Replaces')) {
