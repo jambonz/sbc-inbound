@@ -30,6 +30,7 @@
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.4.29",
     "@jambonz/rtpengine-utils": "^0.3.1",
+    "@jambonz/siprec-client-utils": "^0.1.2",
     "@jambonz/stats-collector": "^0.1.6",
     "@jambonz/time-series": "^0.1.9",
     "aws-sdk": "^2.1152.0",
@@ -42,8 +43,7 @@
     "pino": "^7.11.0",
     "sdp-transform": "^2.14.1",
     "uuid": "^8.3.2",
-    "verify-aws-sns-signature": "^0.0.7",
-    "xml2js": "^0.4.23"
+    "verify-aws-sns-signature": "^0.0.7"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
