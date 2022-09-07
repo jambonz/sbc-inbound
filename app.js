@@ -96,12 +96,14 @@ srf.locals = {...srf.locals,
   }
 };
 const {
+  getSPForAccount,
   wasOriginatedFromCarrier,
   getApplicationForDidAndCarrier,
   getOutboundGatewayForRefer
 } = require('./lib/db-utils')(srf, logger);
 srf.locals = {
   ...srf.locals,
+  getSPForAccount,
   wasOriginatedFromCarrier,
   getApplicationForDidAndCarrier,
   getOutboundGatewayForRefer,
