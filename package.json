@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@jambonz/db-helpers": "^0.6.18",
-    "@jambonz/http-authenticator": "^0.2.1",
+    "@jambonz/http-authenticator": "^0.2.2",
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.4.29",
     "@jambonz/rtpengine-utils": "^0.3.1",
