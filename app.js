@@ -15,6 +15,7 @@ const opts = Object.assign({
 const logger = require('pino')(opts);
 const {
   writeCallCount,
+  writeCallCountSP,
   queryCdrs,
   writeCdrs,
   writeAlerts,
@@ -71,6 +72,7 @@ const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], lo
 srf.locals = {...srf.locals,
   stats,
   writeCallCount,
+  writeCallCountSP,
   queryCdrs,
   writeCdrs,
   writeAlerts,
