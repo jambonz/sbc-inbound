@@ -58,7 +58,7 @@ test('incoming call tests', async(t) => {
     t.pass('handles in-dialog requests');
   
     await sippUac('uac-pcap-carrier-max-call-limit.xml', '172.38.0.20');
-    t.pass('rejects incoming call with 503 when max calls reached')
+    t.pass('rejects incoming call with 503 when max calls per account reached')
   
     await waitFor(10);
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
