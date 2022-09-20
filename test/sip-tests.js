@@ -24,6 +24,7 @@ function waitFor(ms) {
 test('incoming call tests', async(t) => {
   const {srf} = require('../app');
   const { queryCdrs } = srf.locals;
+  let res;
   
   try {
     await connect(srf);
@@ -35,7 +36,7 @@ test('incoming call tests', async(t) => {
 
     await sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     t.pass('incoming call from carrier completed successfully');
-  
+
     await sippUac('uac-pcap-pbx-success.xml', '172.38.0.21');
     t.pass('incoming call from account-level carrier completed successfully');
   
@@ -60,7 +61,7 @@ test('incoming call tests', async(t) => {
     await sippUac('uac-pcap-carrier-max-call-limit.xml', '172.38.0.20');
     t.pass('rejects incoming call with 503 when max calls per account reached')
   
-    await waitFor(10);
+    await waitFor(12);
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
     console.log(`cdrs: ${JSON.stringify(res)}`);
     t.ok(7 === res.total, 'successfully wrote 7 cdrs for calls');

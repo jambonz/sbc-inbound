@@ -9,6 +9,7 @@ insert into webhooks(webhook_sid, url, username, password) values('90dda62e-0ea2
 
 insert into service_providers (service_provider_sid, name, root_domain, registration_hook_sid) 
 values ('3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'SP A', 'jambonz.org', '90dda62e-0ea2-47d1-8164-5bd49003476c');
+insert into service_provider_limits (service_provider_limits_sid, service_provider_sid, category, quantity) VALUES ('a79d3ade-e0da-4461-80f3-7c73f01e18b4', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'voice_call_session', 1);
 
 insert into accounts(account_sid, service_provider_sid, name, sip_realm, registration_hook_sid, webhook_secret)
 values ('ed649e33-e771-403a-8c99-1780eabbc803', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'test account', 'jambonz.org', '90dda62e-0ea2-47d1-8164-5bd49003476c', 'foobar');
@@ -38,6 +39,7 @@ insert into account_subscriptions(account_subscription_sid, account_sid, pending
 values ('73bbcc5d-512f-4cea-8535-9a6e3d2bd19d','d7cc37cb-d152-49ef-a51b-485f6e917089',0);
 insert into account_products(account_product_sid, account_subscription_sid, product_sid,quantity)
 values ('92f137f7-4bc3-4157-b096-6817e54b1874', '73bbcc5d-512f-4cea-8535-9a6e3d2bd19d', 'c4403cdb-8e75-4b27-9726-7d8315e3216d', 0);
+insert into account_limits(account_limits_sid, account_sid, category, quantity) values('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'd7cc37cb-d152-49ef-a51b-485f6e917089', 'voice_call_session', 0);
 
 insert into voip_carriers (voip_carrier_sid, name, account_sid) values ('9b1abdc7-0220-4964-bc66-32b5c70cd9ab', 'westco', 'd7cc37cb-d152-49ef-a51b-485f6e917089');
 insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
