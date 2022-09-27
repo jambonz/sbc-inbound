@@ -66,10 +66,12 @@ const {
   port: process.env.JAMBONES_REDIS_PORT || 6379
 }, logger);
 
+const ngProtocol = process.env.JAMBONES_NG_PROTOCOL || 'udp';
+const ngPort = process.env.RTPENGINE_PORT || ('udp' === ngProtocol ? 22222 : 8080);
 const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], logger, {
   emitter: stats,
   dtmfListenPort: process.env.DTMF_LISTEN_PORT || 22224,
-  protocol: 'udp'
+  protocol: ngProtocol
 });
 srf.locals = {...srf.locals,
   stats,
@@ -245,7 +247,7 @@ const lookupRtpServiceEndpoints = (lookup, serviceName) => {
       rtpServers.length = 0;
       Array.prototype.push.apply(rtpServers, addrs);
       logger.info({rtpServers}, 'rtpserver endpoints have been updated');
-      setRtpEngines(rtpServers.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
+      setRtpEngines(rtpServers.map((a) => `${a}:${ngPort}`));
     }
   });
 };
@@ -272,7 +274,7 @@ else {
       logger.debug({newArray, rtpServers}, 'getActiveRtpServers');
       if (!equalsIgnoreOrder(newArray, rtpServers)) {
         logger.info({newArray}, 'resetting active rtpengines');
-        setRtpEngines(newArray.map((a) => `${a}:${process.env.RTPENGINE_PORT || 22222}`));
+        setRtpEngines(newArray.map((a) => `${a}:${ngPort}`));
         rtpServers.length = 0;
         Array.prototype.push.apply(rtpServers, newArray);
       }
