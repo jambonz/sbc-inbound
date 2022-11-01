@@ -29,7 +29,7 @@
     "@jambonz/realtimedb-helpers": "^0.4.35",
     "@jambonz/http-authenticator": "^0.2.2",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/rtpengine-utils": "^0.3.10",
+    "@jambonz/rtpengine-utils": "^0.3.11",
     "@jambonz/siprec-client-utils": "^0.1.4",
     "@jambonz/stats-collector": "^0.1.6",
     "@jambonz/time-series": "^0.2.5",
