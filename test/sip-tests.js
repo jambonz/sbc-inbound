@@ -33,7 +33,6 @@ test('incoming call tests', async(t) => {
     t.ok(obj.calls === 0, 'HTTP GET / works (current call count)')
     obj = await getJSON('http://127.0.0.1:3050/system-health');
     t.ok(obj.calls === 0, 'HTTP GET /system-health works (health check)')
-
     await sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     t.pass('incoming call from carrier completed successfully');
 
@@ -59,11 +58,15 @@ test('incoming call tests', async(t) => {
     t.pass('handles in-dialog requests');
   
     await sippUac('uac-pcap-carrier-max-call-limit.xml', '172.38.0.20');
-    t.pass('rejects incoming call with 503 when max calls per account reached')
+    t.pass('rejects incoming call with 503 when max calls per account reached');
+
+    delete process.env.JAMBONES_HOSTING;
+    await sippUac('uac-pcap-carrier-fail-ambiguous.xml', '172.38.0.40');
+    t.pass('rejects incoming call with 503 when multiple accounts have same carrier witrh default routing')
   
     await waitFor(12);
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
-    console.log(`cdrs: ${JSON.stringify(res)}`);
+    //console.log(`cdrs: ${JSON.stringify(res)}`);
     t.ok(7 === res.total, 'successfully wrote 7 cdrs for calls');
 
     srf.disconnect();

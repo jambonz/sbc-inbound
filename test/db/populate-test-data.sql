@@ -9,7 +9,8 @@ insert into webhooks(webhook_sid, url, username, password) values('90dda62e-0ea2
 
 insert into service_providers (service_provider_sid, name, root_domain, registration_hook_sid) 
 values ('3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'SP A', 'jambonz.org', '90dda62e-0ea2-47d1-8164-5bd49003476c');
-insert into service_provider_limits (service_provider_limits_sid, service_provider_sid, category, quantity) VALUES ('a79d3ade-e0da-4461-80f3-7c73f01e18b4', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'voice_call_session', 1);
+insert into service_provider_limits (service_provider_limits_sid, service_provider_sid, category, quantity) 
+values ('a79d3ade-e0da-4461-80f3-7c73f01e18b4', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'voice_call_session', 1);
 
 insert into accounts(account_sid, service_provider_sid, name, sip_realm, registration_hook_sid, webhook_secret)
 values ('ed649e33-e771-403a-8c99-1780eabbc803', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'test account', 'jambonz.org', '90dda62e-0ea2-47d1-8164-5bd49003476c', 'foobar');
@@ -67,3 +68,24 @@ values ('d458bf7a-bcea-47b2-ac96-66dfc9c5c220', '150822233*', '287c1452-620d-419
 
 insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid)
 values ('f7ad205d-b92f-4363-8160-f8b5216b40d3', '15083871234', '287c1452-620d-4195-9f19-c9814ef90d78', 'd7cc37cb-d152-49ef-a51b-485f6e917089');
+
+-- two accounts that both have the same carrier with default routing (ambiguity test)
+insert into accounts (account_sid, name, service_provider_sid, webhook_secret, sip_realm)
+values ('239d7d49-b3e4-4fdb-9d66-661149f717e8', 'Account B1', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'foobar', 'echo2.sip.jambonz.org');
+insert into accounts (account_sid, name, service_provider_sid, webhook_secret, sip_realm)
+values ('909d7d49-b3e4-4fdb-9d66-661149f717e8', 'Account B2', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'foobar', 'foxtrot.sip.jambonz.org');
+
+insert into applications (application_sid, name, account_sid, call_hook_sid, call_status_hook_sid)
+values ('8843e39f-4346-4218-8434-a53130e8be49', 'test', '239d7d49-b3e4-4fdb-9d66-661149f717e8', '90dda62e-0ea2-47d1-8164-5bd49003476c', '4d7ce0aa-5ead-4e61-9a6b-3daa732218b1');
+insert into applications (application_sid, name, account_sid, call_hook_sid, call_status_hook_sid)
+values ('7743e39f-4346-4218-8434-a53130e8be49', 'test', '909d7d49-b3e4-4fdb-9d66-661149f717e8', '90dda62e-0ea2-47d1-8164-5bd49003476c', '4d7ce0aa-5ead-4e61-9a6b-3daa732218b1');
+
+insert into voip_carriers (voip_carrier_sid, name, service_provider_sid, account_sid, application_sid) 
+values ('731abdc7-0220-4964-bc66-32b5c70cd9ab', 'twilio-1', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', '239d7d49-b3e4-4fdb-9d66-661149f717e8', '8843e39f-4346-4218-8434-a53130e8be49');
+insert into voip_carriers (voip_carrier_sid, name, service_provider_sid, account_sid, application_sid) 
+values ('987abdc7-0220-4964-bc66-32b5c70cd9ab', 'twilio-2', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', '909d7d49-b3e4-4fdb-9d66-661149f717e8', '7743e39f-4346-4218-8434-a53130e8be49');
+
+insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
+values ('664a5339-c62c-4075-9e19-f4de70a96597', '731abdc7-0220-4964-bc66-32b5c70cd9ab', '172.38.0.40', true, false);
+insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
+values ('554a5339-c62c-4075-9e19-f4de70a96597', '987abdc7-0220-4964-bc66-32b5c70cd9ab', '172.38.0.40', true, false);
