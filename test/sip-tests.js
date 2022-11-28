@@ -60,6 +60,7 @@ test('incoming call tests', async(t) => {
     await sippUac('uac-pcap-carrier-max-call-limit.xml', '172.38.0.20');
     t.pass('rejects incoming call with 503 when max calls per account reached');
 
+    /* switch off this env for remaining tests (JAMBONES_HOSTING is for Saas sts) */
     delete process.env.JAMBONES_HOSTING;
     await sippUac('uac-pcap-carrier-fail-ambiguous.xml', '172.38.0.40');
     t.pass('rejects incoming call with 503 when multiple accounts have same carrier witrh default routing')
