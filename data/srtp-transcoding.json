@@ -1,7 +1,7 @@
 {
   "default": {
     "transport-protocol": "UDP/TLS/RTP/SAVPF",
-    "ICE": "force",
+    "ICE": "default",
     "SDES": "off",
     "flags": ["generate mid", "SDES-no", "media handover", "port latching"],
     "rtcp-mux": ["require"]  
