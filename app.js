@@ -235,7 +235,6 @@ if ('test' !== process.env.NODE_ENV) {
 }
 
 const lookupRtpServiceEndpoints = (lookup, serviceName) => {
-  logger.debug(`dns lookup for ${serviceName}..`);
   lookup(serviceName, {family: 4, all: true}, (err, addresses) => {
     if (err) {
       logger.error({err}, `Error looking up ${serviceName}`);
