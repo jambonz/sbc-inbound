@@ -8,7 +8,7 @@
   },
   "teams": {
     "transport-protocol": "RTP/SAVP",
-    "ICE": "force",
+    "ICE": "default",
     "SDES": "off",
     "flags": ["generate mid", "SDES-no", "media handover", "port latching"],
     "rtcp-mux": ["accept"]
