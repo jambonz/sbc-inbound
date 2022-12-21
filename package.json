@@ -30,7 +30,7 @@
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.5.7",
     "@jambonz/rtpengine-utils": "^0.4.0",
-    "@jambonz/siprec-client-utils": "^0.1.5",
+    "@jambonz/siprec-client-utils": "^0.2.0",
     "@jambonz/stats-collector": "^0.1.6",
     "@jambonz/time-series": "^0.2.5",
     "aws-sdk": "^2.1261.0",
