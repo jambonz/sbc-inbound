@@ -38,7 +38,7 @@
     "cidr-matcher": "^2.1.1",
     "debug": "^4.3.4",
     "drachtio-fn-b2b-sugar": "0.0.12",
-    "drachtio-srf": "^4.5.20",
+    "drachtio-srf": "^4.5.21",
     "express": "^4.18.1",
     "pino": "^7.11.0",
     "verify-aws-sns-signature": "^0.1.0",
