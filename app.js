@@ -28,6 +28,7 @@ const {
   commitInterval: 'test' === process.env.NODE_ENV ? 7 : 20
 });
 const StatsCollector = require('@jambonz/stats-collector');
+const CIDRMatcher = require('cidr-matcher');
 const stats = new StatsCollector(logger);
 const {equalsIgnoreOrder, createHealthCheckApp, systemHealth} = require('./lib/utils');
 const {LifeCycleEvents} = require('./lib/constants');
@@ -129,7 +130,6 @@ const {
 const CallSession = require('./lib/call-session');
 
 if (process.env.DRACHTIO_HOST && !process.env.K8S) {
-  const CIDRMatcher = require('cidr-matcher');
   const cidrs = process.env.JAMBONES_NETWORK_CIDR
     .split(',')
     .map((s) => s.trim());
@@ -164,6 +164,23 @@ else {
     logger.info(`listening in outbound mode on port ${process.env.DRACHTIO_PORT}`);
   });
   srf.listen({port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
+  srf.on('connect', (err, hp) => {
+    if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
+    logger.info(`connected to drachtio listening on ${hp}`);
+
+    if (process.env.K8S_FEATURE_SERVER_TRANSPORT === 'tcp') {
+      const matcher = new CIDRMatcher(['192.168.0.0/24', '172.16.0.0/16', '10.0.0.0/8']);
+      const hostports = hp.split(',');
+      for (const hp of hostports) {
+        const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
+        if (arr && matcher.contains(arr[2])) {
+          const hostport = `${arr[2]}:${arr[3]}`;
+          logger.info(`using sbc private address when sending to feature-server: ${hostport}`);
+          srf.locals.privateSipAddress = hostport;
+        }
+      }
+    }
+  });
 }
 if (process.env.NODE_ENV === 'test') {
   srf.on('error', (err) => {
