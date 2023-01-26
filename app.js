@@ -173,13 +173,10 @@ else {
       const hostports = hp.split(',');
       for (const hp of hostports) {
         const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
-        if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
+        if (arr && matcher.contains(arr[2])) {
           const hostport = `${arr[2]}:${arr[3]}`;
-          logger.info(`adding sbc private address to redis: ${hostport}`);
+          logger.info(`using sbc private address when sending to feature-server: ${hostport}`);
           srf.locals.privateSipAddress = hostport;
-          srf.locals.addToRedis = () => addToSet(setName, hostport);
-          srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
-          srf.locals.addToRedis();
         }
       }
     }
