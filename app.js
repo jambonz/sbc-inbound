@@ -325,7 +325,10 @@ function handle(removeFromSet, setName, signal) {
   if (srf.locals.privateSipAddress && setName) {
     logger.info(`removing ${srf.locals.privateSipAddress} from set ${setName}`);
     removeFromSet(setName, srf.locals.privateSipAddress);
-    if ((0 === activeCallIds.size)) {
+  }
+  if (process.env.K8S) {
+    lifecycleEmitter.operationalState = LifeCycleEvents.ScaleIn;
+    if (0 === activeCallIds.size) {
       logger.info('exiting immediately since we have no calls in progress');
       process.exit(0);
     }
