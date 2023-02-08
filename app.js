@@ -321,8 +321,18 @@ process.on('SIGUSR2', handle.bind(null, removeFromSet, setName));
 process.on('SIGTERM', handle.bind(null, removeFromSet, setName));
 
 function handle(removeFromSet, setName, signal) {
-  logger.info(`got signal ${signal}, removing ${srf.locals.privateSipAddress} from set ${setName}`);
-  removeFromSet(setName, srf.locals.privateSipAddress);
+  logger.info(`got signal ${signal}`);
+  if (srf.locals.privateSipAddress && setName) {
+    logger.info(`removing ${srf.locals.privateSipAddress} from set ${setName}`);
+    removeFromSet(setName, srf.locals.privateSipAddress);
+  }
+  if (process.env.K8S) {
+    lifecycleEmitter.operationalState = LifeCycleEvents.ScaleIn;
+    if (0 === activeCallIds.size) {
+      logger.info('exiting immediately since we have no calls in progress');
+      process.exit(0);
+    }
+  }
 }
 
 module.exports = {srf, logger};
