@@ -247,7 +247,8 @@ if (process.env.K8S || process.env.HTTP_PORT) {
 if ('test' !== process.env.NODE_ENV) {
   /* update call stats periodically */
   setInterval(() => {
-    stats.gauge('sbc.sip.calls.count', activeCallIds.size, ['direction:inbound']);
+    stats.gauge('sbc.sip.calls.count', activeCallIds.size,
+      ['direction:inbound', `instance_id:${process.env.INSTANCE_ID || 0}`]);
   }, 20000);
 }
 
