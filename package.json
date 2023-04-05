@@ -31,7 +31,7 @@
     "@jambonz/realtimedb-helpers": "^0.7.0",
     "@jambonz/rtpengine-utils": "^0.4.3",
     "@jambonz/siprec-client-utils": "^0.2.4",
-    "@jambonz/stats-collector": "^0.1.6",
+    "@jambonz/stats-collector": "^0.1.8",
     "@jambonz/time-series": "^0.2.5",
     "aws-sdk": "^2.1261.0",
     "bent": "^7.3.12",
