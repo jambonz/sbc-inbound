@@ -1,10 +1,39 @@
 # sbc-inbound ![Build Status](https://github.com/jambonz/sbc-inbound/workflows/CI/badge.svg)
 
-This application provides a part of the SBC (Session Border Controller) functionality of jambonz.  It handles incoming INVITE requests from carrier sip trunks or from sip devices and webrtc applications. SIP INVITEs from known carriers are allowed in, while INVITEs from sip devices are challenged to authenticate.  SIP traffic that is allowed in is sent on to a jambonz application server in a private subnet.
+This application provides a part of the SBC (Session Border Controller) functionality of jambonz platform. It handles incoming INVITE requests from carrier sip trunks or from sip devices and webrtc applications. SIP INVITEs from known carriers are allowed in, while INVITEs from sip devices are challenged to authenticate.  SIP traffic that is allowed in is sent on to a jambonz application server in a private subnet.
 
 ## Configuration
 
-Configuration is provided via the [npmjs config](https://www.npmjs.com/package/config) package.  The following elements make up the configuration for the application:
+Configuration is provided via environment variables:
+
+| variable | meaning | required?|
+|----------|----------|---------|
+|DRACHTIO_HOST| ip address of drachtio server (typically '127.0.0.1')|yes|
+|DRACHTIO_PORT| listening port of drachtio server for control connections (typically 9022)|yes|
+|DRACHTIO_SECRET| shared secret|yes|
+|HTTP_PORT| http listen port |no|
+|JAMBONES_LOGLEVEL| log level for application, 'info' or 'debug'|no|
+|JAMBONES_MYSQL_HOST| mysql host|yes|
+|JAMBONES_MYSQL_PORT| mysql port |no|
+|JAMBONES_MYSQL_USER| mysql username|yes|
+|JAMBONES_MYSQL_PASSWORD| mysql password|yes|
+|JAMBONES_MYSQL_DATABASE| mysql data|yes|
+|JAMBONES_MYSQL_CONNECTION_LIMIT| mysql connection limit |no|
+|DTMF_LISTEN_PORT| DTMF listening port |no|
+|JAMBONES_NG_PROTOCOL| rtpengine NG protocol |no|
+|RTPENGINE_PORT| rtpengine port |no|
+|JAMBONES_CLUSTER_ID| cluster id |no|
+|JAMBONES_NETWORK_CIDR| CIDR of private network that feature server is running in (e.g. '172.31.0.0/16')|yes|
+|JAMBONES_REDIS_HOST| redis host|yes|
+|JAMBONES_REDIS_PORT|redis port|no|
+|JAMBONES_RTPENGINES| commas-separated list of ip:ng-port for rtpengines (e.g. '172.31.32.10:22222')|no|
+|JAMBONES_TIME_SERIES_HOST| influxdb host |yes|
+|JAMBONES_TIME_SERIES_PORT| influxdb port |no|
+|JAMBONES_RECORD_ALL_CALLS| enable auto record calls, 'yes' or 'no' |no|
+|K8S| service running as kubernetes service |no|
+|K8S_RTPENGINE_SERVICE_NAME| rtpengine service name(required for K8S) |no|
+|K8S_FEATURE_SERVER_SERVICE_NAME| feature server service name(required for K8S) |no|
+
 ##### drachtio server location
 ```
 {
