@@ -144,6 +144,7 @@ const activeCallIds = srf.locals.activeCallIds;
 
 const {
   initLocals,
+  createRootSpan,
   handleSipRec,
   identifyAccount,
   checkLimits,
@@ -213,6 +214,7 @@ if (process.env.NODE_ENV === 'test') {
 /* install middleware */
 srf.use('invite', [
   initLocals,
+  createRootSpan,
   handleSipRec,
   identifyAccount,
   checkLimits,
