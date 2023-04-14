@@ -9,6 +9,7 @@ assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
 assert.ok(process.env.JAMBONES_TIME_SERIES_HOST, 'missing JAMBONES_TIME_SERIES_HOST env var');
 assert.ok(process.env.JAMBONES_NETWORK_CIDR || process.env.K8S, 'missing JAMBONES_NETWORK_CIDR env var');
 
+
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
 const opts = Object.assign({
@@ -77,6 +78,21 @@ const {getRtpEngine, setRtpEngines} = require('@jambonz/rtpengine-utils')([], lo
   dtmfListenPort: process.env.DTMF_LISTEN_PORT || 22224,
   protocol: ngProtocol
 });
+
+const {version} = require('./package.json');
+const {JambonzTracer} = require('@jambonz/tracing');
+const {tracer} = new JambonzTracer({
+  version,
+  name: process.env.JAMBONES_OTEL_SERVICE_NAME || 'jambonz-sbc-inbound',
+  enabled: process.env.JAMBONES_OTEL_ENABLED,
+  jaegerHost: process.env.OTEL_EXPORTER_JAEGER_AGENT_HOST,
+  jaegerEndpoint: process.env.OTEL_EXPORTER_JAEGER_ENDPOINT,
+  zipkinUrl: process.env.OTEL_EXPORTER_ZIPKIN_URL,
+  collectorUrl: process.env.OTEL_EXPORTER_COLLECTOR_URL,
+  logLevel: process.env.JAMBONES_LOGLEVEL
+});
+
+
 srf.locals = {...srf.locals,
   stats,
   writeCallCount,
@@ -105,6 +121,9 @@ srf.locals = {...srf.locals,
     incrKey,
     decrKey,
     retrieveSet
+  },
+  otel: {
+    tracer
   }
 };
 const {
@@ -125,6 +144,7 @@ const activeCallIds = srf.locals.activeCallIds;
 
 const {
   initLocals,
+  createRootSpan,
   handleSipRec,
   identifyAccount,
   checkLimits,
@@ -194,6 +214,7 @@ if (process.env.NODE_ENV === 'test') {
 /* install middleware */
 srf.use('invite', [
   initLocals,
+  createRootSpan,
   handleSipRec,
   identifyAccount,
   checkLimits,
