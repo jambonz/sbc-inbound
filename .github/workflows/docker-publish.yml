@@ -2,6 +2,8 @@ name: Docker
 
 on:
   push:
+    branches:
+      - main
     tags:
       - '*'
 
@@ -18,7 +20,7 @@ jobs:
       - name: prepare tag 
         id: prepare_tag
         run: |
-            IMAGE_ID=$GITHUB_REPOSITORY
+            IMAGE_ID=jambonz/sbc-inbound
 
             # Strip git ref prefix from version
             VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
