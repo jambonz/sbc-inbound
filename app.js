@@ -30,6 +30,9 @@ const JAMBONES_REDIS_SENTINELS = process.env.JAMBONES_REDIS_SENTINELS ? {
   name: process.env.JAMBONES_REDIS_SENTINEL_MASTER_NAME,
   ...(process.env.JAMBONES_REDIS_SENTINEL_PASSWORD && {
     password: process.env.JAMBONES_REDIS_SENTINEL_PASSWORD
+  }),
+  ...(process.env.JAMBONES_REDIS_SENTINEL_USERNAME && {
+    username: process.env.JAMBONES_REDIS_SENTINEL_USERNAME
   })
 } : null;
 
