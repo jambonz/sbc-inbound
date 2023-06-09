@@ -138,7 +138,8 @@ const {
   getSPForAccount,
   wasOriginatedFromCarrier,
   getApplicationForDidAndCarrier,
-  getOutboundGatewayForRefer
+  getOutboundGatewayForRefer,
+  getApplicationBySid
 } = require('./lib/db-utils')(srf, logger);
 srf.locals = {
   ...srf.locals,
@@ -146,7 +147,8 @@ srf.locals = {
   wasOriginatedFromCarrier,
   getApplicationForDidAndCarrier,
   getOutboundGatewayForRefer,
-  getFeatureServer: require('./lib/fs-tracking')(srf, logger)
+  getFeatureServer: require('./lib/fs-tracking')(srf, logger),
+  getApplicationBySid
 };
 const activeCallIds = srf.locals.activeCallIds;
 
