@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@jambonz/db-helpers": "^0.9.0",
-    "@jambonz/http-authenticator": "^0.2.2",
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.8.6",
     "@jambonz/rtpengine-utils": "^0.4.3",
@@ -42,7 +41,9 @@
     "express": "^4.18.1",
     "pino": "^7.11.0",
     "verify-aws-sns-signature": "^0.1.0",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.4.23",
+    "nonce": "^1.0.4",
+    "qs": "^6.9.4"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
