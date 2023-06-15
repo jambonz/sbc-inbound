@@ -33,6 +33,8 @@ Configuration is provided via environment variables:
 |K8S| service running as kubernetes service |no|
 |K8S_RTPENGINE_SERVICE_NAME| rtpengine service name(required for K8S) |no|
 |K8S_FEATURE_SERVER_SERVICE_NAME| feature server service name(required for K8S) |no|
+|JWT_SECRET| secret for signing JWT token |yes|
+|ENCRYPTION_SECRET| secret for credential encryption(JWT_SECRET is deprecated) |yes|
 
 ##### drachtio server location
 ```
