@@ -30,7 +30,7 @@
     "@jambonz/realtimedb-helpers": "^0.8.6",
     "@jambonz/rtpengine-utils": "^0.4.3",
     "@jambonz/siprec-client-utils": "^0.2.6",
-    "@jambonz/stats-collector": "^0.1.8",
+    "@jambonz/stats-collector": "^0.1.9",
     "@jambonz/time-series": "^0.2.5",
     "@jambonz/digest-utils": "^0.0.3",
     "@aws-sdk/client-sns": "^3.360.0",
