@@ -33,7 +33,10 @@ const JAMBONES_REDIS_SENTINELS = process.env.JAMBONES_REDIS_SENTINELS ? {
   }),
   ...(process.env.JAMBONES_REDIS_SENTINEL_USERNAME && {
     username: process.env.JAMBONES_REDIS_SENTINEL_USERNAME
-  })
+  }),
+  ...(process.env.JAMBONES_REDIS_SENTINEL_SENTINAL_PASSWORD && {
+    sentinelPassword: process.env.JAMBONES_REDIS_SENTINEL_SENTINAL_PASSWORD
+  }),
 } : null;
 
 const Srf = require('drachtio-srf');
