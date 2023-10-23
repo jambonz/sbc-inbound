@@ -80,7 +80,8 @@ const {
   lookupAccountBySid,
   lookupAccountCapacitiesBySid,
   queryCallLimits,
-  lookupClientByAccountAndUsername
+  lookupClientByAccountAndUsername,
+  lookupAppBySid
 } = require('@jambonz/db-helpers')({
   host: process.env.JAMBONES_MYSQL_HOST,
   port: process.env.JAMBONES_MYSQL_PORT || 3306,
@@ -130,7 +131,8 @@ srf.locals = {...srf.locals,
     lookupAccountBySipRealm,
     lookupAccountCapacitiesBySid,
     queryCallLimits,
-    lookupClientByAccountAndUsername
+    lookupClientByAccountAndUsername,
+    lookupAppBySid
   },
   realtimeDbHelpers: {
     createSet,
