@@ -33,6 +33,7 @@
     "@jambonz/stats-collector": "^0.1.9",
     "@jambonz/time-series": "^0.2.5",
     "@jambonz/digest-utils": "^0.0.3",
+    "@jambonz/mw-registrar": "^0.2.4",
     "@aws-sdk/client-sns": "^3.360.0",
     "@aws-sdk/client-auto-scaling": "^3.360.0",
     "bent": "^7.3.12",

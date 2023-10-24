@@ -67,6 +67,7 @@ const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
 const setName = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-sip`;
+const Registrar = require('@jambonz/mw-registrar');
 
 const {
   pool,
@@ -101,6 +102,7 @@ const {
   host: process.env.JAMBONES_REDIS_HOST,
   port: process.env.JAMBONES_REDIS_PORT || 6379
 }, logger);
+const registrar = new Registrar(logger, redisClient);
 
 const ngProtocol = process.env.JAMBONES_NG_PROTOCOL || 'udp';
 const ngPort = process.env.RTPENGINE_PORT || ('udp' === ngProtocol ? 22222 : 8080);
@@ -121,6 +123,7 @@ srf.locals = {...srf.locals,
   activeCallIds: new Map(),
   getRtpEngine,
   dbHelpers: {
+    registrar,
     pool,
     ping,
     lookupAuthHook,
