@@ -1,6 +1,6 @@
 {
   "name": "sbc-inbound",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "main": "app.js",
   "engines": {
     "node": ">= 12.0.0"
