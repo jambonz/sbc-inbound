@@ -27,7 +27,7 @@
   "dependencies": {
     "@jambonz/db-helpers": "^0.9.1",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.8.6",
+    "@jambonz/realtimedb-helpers": "^0.8.7",
     "@jambonz/rtpengine-utils": "^0.4.3",
     "@jambonz/siprec-client-utils": "^0.2.6",
     "@jambonz/stats-collector": "^0.1.9",
