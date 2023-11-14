@@ -14,31 +14,6 @@ assert.ok(process.env.DRACHTIO_SECRET, 'missing DRACHTIO_SECRET env var');
 assert.ok(process.env.JAMBONES_TIME_SERIES_HOST, 'missing JAMBONES_TIME_SERIES_HOST env var');
 assert.ok(process.env.JAMBONES_NETWORK_CIDR || process.env.K8S, 'missing JAMBONES_NETWORK_CIDR env var');
 
-
-const JAMBONES_REDIS_SENTINELS = process.env.JAMBONES_REDIS_SENTINELS ? {
-  sentinels: process.env.JAMBONES_REDIS_SENTINELS.split(',').map((sentinel) => {
-    let host, port = 26379;
-    if (sentinel.includes(':')) {
-      const arr = sentinel.split(':');
-      host = arr[0];
-      port = parseInt(arr[1], 10);
-    } else {
-      host = sentinel;
-    }
-    return {host, port};
-  }),
-  name: process.env.JAMBONES_REDIS_SENTINEL_MASTER_NAME,
-  ...(process.env.JAMBONES_REDIS_SENTINEL_PASSWORD && {
-    password: process.env.JAMBONES_REDIS_SENTINEL_PASSWORD
-  }),
-  ...(process.env.JAMBONES_REDIS_SENTINEL_USERNAME && {
-    username: process.env.JAMBONES_REDIS_SENTINEL_USERNAME
-  }),
-  ...(process.env.JAMBONES_REDIS_SENTINEL_SENTINAL_PASSWORD && {
-    sentinelPassword: process.env.JAMBONES_REDIS_SENTINEL_SENTINAL_PASSWORD
-  }),
-} : null;
-
 const Srf = require('drachtio-srf');
 const srf = new Srf('sbc-inbound');
 const opts = Object.assign({
@@ -96,10 +71,7 @@ const {
   addToSet,
   removeFromSet,
   incrKey,
-  decrKey} = require('@jambonz/realtimedb-helpers')(JAMBONES_REDIS_SENTINELS || {
-  host: process.env.JAMBONES_REDIS_HOST,
-  port: process.env.JAMBONES_REDIS_PORT || 6379
-}, logger);
+  decrKey} = require('@jambonz/realtimedb-helpers')({}, logger);
 
 const ngProtocol = process.env.JAMBONES_NG_PROTOCOL || 'udp';
 const ngPort = process.env.RTPENGINE_PORT || ('udp' === ngProtocol ? 22222 : 8080);
