@@ -25,10 +25,10 @@
     "jslint": "eslint app.js lib"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.9.1",
+    "@jambonz/db-helpers": "^0.9.3",
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.8.7",
-    "@jambonz/rtpengine-utils": "^0.4.3",
+    "@jambonz/rtpengine-utils": "^0.4.4",
     "@jambonz/siprec-client-utils": "^0.2.6",
     "@jambonz/stats-collector": "^0.1.9",
     "@jambonz/time-series": "^0.2.5",
