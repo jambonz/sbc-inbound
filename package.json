@@ -1,6 +1,6 @@
 {
   "name": "sbc-inbound",
-  "version": "0.8.5",
+  "version": "0.9.0",
   "main": "app.js",
   "engines": {
     "node": ">= 12.0.0"
@@ -27,28 +27,28 @@
   "dependencies": {
     "@jambonz/db-helpers": "^0.9.3",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.8.7",
+    "@jambonz/realtimedb-helpers": "^0.8.8",
     "@jambonz/rtpengine-utils": "^0.4.4",
     "@jambonz/siprec-client-utils": "^0.2.7",
     "@jambonz/stats-collector": "^0.1.9",
-    "@jambonz/time-series": "^0.2.5",
-    "@jambonz/digest-utils": "^0.0.3",
-    "@aws-sdk/client-sns": "^3.360.0",
-    "@aws-sdk/client-auto-scaling": "^3.360.0",
+    "@jambonz/time-series": "^0.2.8",
+    "@jambonz/digest-utils": "^0.0.5",
+    "@aws-sdk/client-sns": "^3.549.0",
+    "@aws-sdk/client-auto-scaling": "^3.549.0",
     "bent": "^7.3.12",
     "cidr-matcher": "^2.1.1",
     "debug": "^4.3.4",
-    "drachtio-fn-b2b-sugar": "0.0.12",
+    "drachtio-fn-b2b-sugar": "0.1.0",
     "drachtio-srf": "^4.5.31",
-    "express": "^4.18.1",
-    "pino": "^7.11.0",
+    "express": "^4.19.2",
+    "pino": "^8.20.0",
     "verify-aws-sns-signature": "^0.1.0",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
-    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-promise": "^6.1.1",
     "nyc": "^15.1.0",
-    "tape": "^4.15.1"
+    "tape": "^5.7.5"
   }
 }
