@@ -145,11 +145,28 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   const matcher = new CIDRMatcher(cidrs);
 
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
-  srf.on('connect', (err, hp) => {
+  srf.on('connect', (err, hp, version, localHostports) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
-    logger.info(`connected to drachtio listening on ${hp}`);
+    let addedPrivateIp = false;
+    logger.info(`connected to drachtio ${version} listening on ${hp}, local hostports: ${localHostports}`);
 
     const hostports = hp.split(',');
+
+    if (localHostports) {
+      const locals = localHostports.split(',');
+      for (const hp of locals) {
+        const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
+        if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
+          const hostport = `${arr[2]}:${arr[3]}`;
+          logger.info(`adding sbc private address to redis: ${hostport}`);
+          srf.locals.privateSipAddress = hostport;
+          srf.locals.addToRedis = () => addToSet(setName, hostport);
+          srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
+          srf.locals.addToRedis();
+          addedPrivateIp = true;
+        }
+      }
+    }
     for (const hp of hostports) {
       const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
       if (arr && 'udp' === arr[1] && !matcher.contains(arr[2])) {
@@ -157,7 +174,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
         srf.locals.sipAddress = arr[2];
         if (!process.env.SBC_ACCOUNT_SID) addSbcAddress(arr[2]);
       }
-      else if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
+      else if (!addedPrivateIp && arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
         const hostport = `${arr[2]}:${arr[3]}`;
         logger.info(`adding sbc private address to redis: ${hostport}`);
         srf.locals.privateSipAddress = hostport;
@@ -173,13 +190,13 @@ else {
     logger.info(`listening in outbound mode on port ${process.env.DRACHTIO_PORT}`);
   });
   srf.listen({port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET});
-  srf.on('connect', (err, hp) => {
+  srf.on('connect', (err, hp, version, localHostports) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
-    logger.info(`connected to drachtio listening on ${hp}`);
+    logger.info(`connected to drachtio ${version} listening on ${hp}, local hostports: ${localHostports}`);
 
     if (process.env.K8S_FEATURE_SERVER_TRANSPORT === 'tcp') {
       const matcher = new CIDRMatcher(['192.168.0.0/24', '172.16.0.0/16', '10.0.0.0/8']);
-      const hostports = hp.split(',');
+      const hostports = localHostports ? localHostports.split(',') : hp.split(',');
       for (const hp of hostports) {
         const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
         if (arr && matcher.contains(arr[2])) {
