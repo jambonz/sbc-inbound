@@ -183,6 +183,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
         srf.locals.addToRedis();
       }
     }
+    srf.locals.sbcPublicIpAddress = parseHostPorts(hostports);
   });
 }
 else {
@@ -206,6 +207,7 @@ else {
         }
       }
     }
+    srf.locals.sbcPublicIpAddress = parseHostPorts(hp.split(','));
   });
 }
 if (process.env.NODE_ENV === 'test') {
@@ -361,5 +363,41 @@ function handle(removeFromSet, setName, signal) {
     }
   }
 }
+
+const parseHostPorts = (hostports) => {
+  let obj = {};
+  for (const hp of hostports) {
+    const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
+    if (arr) {
+      const ipv4 = arr[2];
+      const port = arr[3];
+      switch (arr[1]) {
+        case 'udp':
+          obj = {
+            ...obj,
+            udp: `${ipv4}:${port}`
+          };
+          break;
+        case 'tls':
+          obj = {
+            ...obj,
+            tls: `${ipv4}:${port}`
+          };
+          break;
+        case 'wss':
+          obj = {
+            ...obj,
+            wss: `${ipv4}:${port}`
+          };
+          break;
+      }
+    }
+    if (!obj.tls) {
+      obj.tls = `${srf.locals.sipAddress}:5061`;
+    }
+  }
+  logger.info({obj}, 'sip endpoints');
+  return obj;
+};
 
 module.exports = {srf, logger};
