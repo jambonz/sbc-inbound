@@ -167,6 +167,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
         }
       }
     }
+    srf.locals.sbcPublicIpAddress = {};
     for (const hp of hostports) {
       const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
       if (arr && 'udp' === arr[1] && !matcher.contains(arr[2])) {
@@ -181,6 +182,33 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
         srf.locals.addToRedis = () => addToSet(setName, hostport);
         srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
         srf.locals.addToRedis();
+      }
+      if (arr) {
+        const ipv4 = arr[2];
+        const port = arr[3];
+        switch (arr[1]) {
+          case 'udp':
+            srf.locals.sbcPublicIpAddress = {
+              ...srf.locals.sbcPublicIpAddress,
+              udp: `${ipv4}:${port}`
+            };
+            break;
+          case 'tls':
+            srf.locals.sbcPublicIpAddress = {
+              ...srf.locals.sbcPublicIpAddress,
+              tls: `${ipv4}:${port}`
+            };
+            break;
+          case 'wss':
+            srf.locals.sbcPublicIpAddress = {
+              ...srf.locals.sbcPublicIpAddress,
+              wss: `${ipv4}:${port}`
+            };
+            break;
+        }
+      }
+      if (!srf.locals.sbcPublicIpAddress.tls) {
+        srf.locals.sbcPublicIpAddress.tls = `${srf.locals.sipAddress}:5061`;
       }
     }
   });
