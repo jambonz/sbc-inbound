@@ -137,7 +137,6 @@ const {
   challengeDeviceCalls
 } = require('./lib/middleware')(srf, logger);
 const CallSession = require('./lib/call-session');
-const { parse } = require('path');
 
 if (process.env.DRACHTIO_HOST && !process.env.K8S) {
   const cidrs = process.env.JAMBONES_NETWORK_CIDR
@@ -366,7 +365,7 @@ function handle(removeFromSet, setName, signal) {
 }
 
 const parseHostPorts = (hostports) => {
-  let obj = {}; 
+  let obj = {};
   for (const hp of hostports) {
     const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
     if (arr) {
