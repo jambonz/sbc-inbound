@@ -395,9 +395,9 @@ const parseHostPorts = (hostports) => {
     if (!obj.tls) {
       obj.tls = `${srf.locals.sipAddress}:5061`;
     }
-    logger.info({obj}, 'sip endpoints');
-    return obj;
   }
+  logger.info({obj}, 'sip endpoints');
+  return obj;
 };
 
 module.exports = {srf, logger};
