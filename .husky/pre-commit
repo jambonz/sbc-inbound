@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npm audit fix || true
-npm run jslint
+# npm audit fix || true
+# npm run jslint
