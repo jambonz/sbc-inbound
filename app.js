@@ -366,6 +366,7 @@ function handle(removeFromSet, setName, signal) {
 
 const parseHostPorts = (hostports) => {
   let obj = {};
+  logger.info({hostports}, 'sip endpoints');
   for (const hp of hostports) {
     const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
     if (arr) {
@@ -376,6 +377,12 @@ const parseHostPorts = (hostports) => {
           obj = {
             ...obj,
             udp: `${ipv4}:${port}`
+          };
+          break;
+        case 'tcp':
+          obj = {
+            ...obj,
+            tcp: `${ipv4}:${port}`
           };
           break;
         case 'tls':
@@ -394,6 +401,9 @@ const parseHostPorts = (hostports) => {
     }
     if (!obj.tls) {
       obj.tls = `${srf.locals.sipAddress}:5061`;
+    }
+    if (!obj.tcp) {
+      obj.tcp = `${srf.locals.sipAddress}:5060`;
     }
   }
   logger.info({obj}, 'sip endpoints');
