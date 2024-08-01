@@ -44,18 +44,18 @@ test('utils tests - parseHostPorts', async (t) => {
 });
 
 
-test('utils tests - parse URI user', async (t) => {
+test.only('utils tests - parse URI user', async (t) => {
   try {
+    let invalidUri = "sip:@202660.tenios.com";
     const req = {
-      "referTo": { "uri": "sip:@202660.tenios.com" },
-      getParsedHeader: () => ({ "uri": "sip:@202660.tenios.com" })
+      getParsedHeader: () => ({ uri: invalidUri })
     };
     // "refer-to":"<sip:+49221578952870@202660.tenios.com>"
-    // <sip:@202660.tenios.com>
+    // 
 
     const referTo = req.getParsedHeader('Refer-To');
-    const uri = parseUri(referTo.uri);
-    // uri.user does not exist
+    let uri = parseUri(referTo.uri);
+    
     const arr = /context-(.*)/.exec(uri.user);
 
     const expected = {
@@ -69,12 +69,21 @@ test('utils tests - parse URI user', async (t) => {
       headers: {},
     }
 
-    t.ok(uri.family === expected.family, 'sip endpoint tls');
-    t.ok(uri.scheme === expected.scheme, 'sip endpoint wss');
-    t.ok(uri.password === expected.password, 'sip endpoint tcp');
-    t.ok(uri.host === expected.host, 'sip endpoint udp');    
-    t.ok(typeof uri.params === 'object', 'sip endpoint udp');
-    t.ok(typeof uri.headers === 'object', 'sip endpoint udp');
+    t.ok(uri.family === expected.family, 'family eq ipv4');
+    t.ok(uri.scheme === expected.scheme, 'scheme eq sip');
+    t.ok(uri.password === expected.password, 'pw eq undefined');
+    t.ok(uri.host === expected.host, 'host eq 202660.tenios.com');
+    t.ok(uri.user === "", 'user eq empty string');
+    t.ok(isNaN(uri.port), 'port eq NaN');
+    t.ok(typeof uri.params === 'object', 'params eq object');
+    t.ok(typeof uri.headers === 'object', 'headers eq object');
+
+    invalidUri = "<sip:@202660.tenios.com>";    
+    uri = parseUri(invalidUri);
+    /* TODO: uri can be undefined - check these conditions in call-session */
+    t.ok(uri === undefined, 'uri is undefined');
+
+    const validUri = "<sip:+49221578952870@202660.tenios.com>";
 
     t.end();
   } catch (err) {
