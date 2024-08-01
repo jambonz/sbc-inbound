@@ -44,7 +44,7 @@ test('utils tests - parseHostPorts', async (t) => {
 });
 
 
-test.only('utils tests - parse URI user', async (t) => {
+test('utils tests - parse URI user', async (t) => {
   try {
     let invalidUri = "sip:@202660.tenios.com";
     const req = {
