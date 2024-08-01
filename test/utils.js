@@ -50,14 +50,10 @@ test.only('utils tests - parse URI user', async (t) => {
     const req = {
       getParsedHeader: () => ({ uri: invalidUri })
     };
-    // "refer-to":"<sip:+49221578952870@202660.tenios.com>"
-    // 
 
     const referTo = req.getParsedHeader('Refer-To');
     let uri = parseUri(referTo.uri);
     
-    const arr = /context-(.*)/.exec(uri.user);
-
     const expected = {
       family: "ipv4",
       scheme: "sip",
