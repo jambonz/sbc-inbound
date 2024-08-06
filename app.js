@@ -37,7 +37,7 @@ const {
 const StatsCollector = require('@jambonz/stats-collector');
 const CIDRMatcher = require('cidr-matcher');
 const stats = new StatsCollector(logger);
-const {equalsIgnoreOrder, createHealthCheckApp, systemHealth} = require('./lib/utils');
+const {equalsIgnoreOrder, createHealthCheckApp, systemHealth, parseHostPorts} = require('./lib/utils');
 const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
@@ -183,6 +183,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
         srf.locals.addToRedis();
       }
     }
+    srf.locals.sbcPublicIpAddress = parseHostPorts(logger, hostports, srf);
   });
 }
 else {
@@ -206,6 +207,7 @@ else {
         }
       }
     }
+    srf.locals.sbcPublicIpAddress = parseHostPorts(logger, hp, srf);
   });
 }
 if (process.env.NODE_ENV === 'test') {
