@@ -55,7 +55,8 @@ const {
   lookupAccountBySid,
   lookupAccountCapacitiesBySid,
   queryCallLimits,
-  lookupClientByAccountAndUsername
+  lookupClientByAccountAndUsername,
+  lookupSystemInformation
 } = require('@jambonz/db-helpers')({
   host: process.env.JAMBONES_MYSQL_HOST,
   port: process.env.JAMBONES_MYSQL_PORT || 3306,
@@ -91,6 +92,7 @@ srf.locals = {...srf.locals,
   AlertType,
   activeCallIds: new Map(),
   getRtpEngine,
+  privateNetworkCidr: process.env.PRIVATE_VOIP_NETWORK_CIDR || null,
   dbHelpers: {
     pool,
     ping,
@@ -102,7 +104,8 @@ srf.locals = {...srf.locals,
     lookupAccountBySipRealm,
     lookupAccountCapacitiesBySid,
     queryCallLimits,
-    lookupClientByAccountAndUsername
+    lookupClientByAccountAndUsername,
+    lookupSystemInformation
   },
   realtimeDbHelpers: {
     createSet,
@@ -273,10 +276,18 @@ if (process.env.K8S || process.env.HTTP_PORT) {
     });
 }
 if ('test' !== process.env.NODE_ENV) {
-  /* update call stats periodically */
-  setInterval(() => {
+  /* update call stats periodically as well as definition of private network cidr */
+  setInterval(async() => {
     stats.gauge('sbc.sip.calls.count', activeCallIds.size,
       ['direction:inbound', `instance_id:${process.env.INSTANCE_ID || 0}`]);
+
+    const r = await lookupSystemInformation();
+    if (r) {
+      if (r.private_network_cidr !== srf.locals.privateNetworkCidr) {
+        logger.info(`updating private network cidr from ${srf.locals.privateNetworkCidr} to ${r.private_network_cidr}`);
+        srf.locals.privateNetworkCidr = r.private_network_cidr;
+      }
+    }
   }, 20000);
 }
 
