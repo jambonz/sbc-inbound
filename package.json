@@ -26,7 +26,7 @@
     "jslint:fix": "npm run jslint --fix"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.9.4",
+    "@jambonz/db-helpers": "^0.9.7",
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.8.8",
     "@jambonz/rtpengine-utils": "^0.4.4",
