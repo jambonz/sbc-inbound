@@ -14,13 +14,21 @@ DROP TABLE IF EXISTS beta_invite_codes;
 
 DROP TABLE IF EXISTS call_routes;
 
+DROP TABLE IF EXISTS clients;
+
 DROP TABLE IF EXISTS dns_records;
+
+DROP TABLE IF EXISTS lcr;
 
 DROP TABLE IF EXISTS lcr_carrier_set_entry;
 
 DROP TABLE IF EXISTS lcr_routes;
 
 DROP TABLE IF EXISTS password_settings;
+
+DROP TABLE IF EXISTS user_permissions;
+
+DROP TABLE IF EXISTS permissions;
 
 DROP TABLE IF EXISTS predefined_sip_gateways;
 
@@ -46,7 +54,11 @@ DROP TABLE IF EXISTS signup_history;
 
 DROP TABLE IF EXISTS smpp_addresses;
 
+DROP TABLE IF EXISTS google_custom_voices;
+
 DROP TABLE IF EXISTS speech_credentials;
+
+DROP TABLE IF EXISTS system_information;
 
 DROP TABLE IF EXISTS users;
 
@@ -120,6 +132,19 @@ application_sid CHAR(36) NOT NULL,
 PRIMARY KEY (call_route_sid)
 ) COMMENT='a regex-based pattern match for call routing';
 
+CREATE TABLE clients
+(
+client_sid CHAR(36) NOT NULL UNIQUE ,
+account_sid CHAR(36) NOT NULL,
+is_active BOOLEAN NOT NULL DEFAULT 1,
+username VARCHAR(64),
+password VARCHAR(1024),
+allow_direct_app_calling BOOLEAN NOT NULL DEFAULT 1,
+allow_direct_queue_calling BOOLEAN NOT NULL DEFAULT 1,
+allow_direct_user_calling BOOLEAN NOT NULL DEFAULT 1,
+PRIMARY KEY (client_sid)
+);
+
 CREATE TABLE dns_records
 (
 dns_record_sid CHAR(36) NOT NULL UNIQUE ,
@@ -132,17 +157,37 @@ PRIMARY KEY (dns_record_sid)
 CREATE TABLE lcr_routes
 (
 lcr_route_sid CHAR(36),
+lcr_sid CHAR(36) NOT NULL,
 regex VARCHAR(32) NOT NULL COMMENT 'regex-based pattern match against dialed number, used for LCR routing of PSTN calls',
 description VARCHAR(1024),
-priority INTEGER NOT NULL UNIQUE  COMMENT 'lower priority routes are attempted first',
+priority INTEGER NOT NULL COMMENT 'lower priority routes are attempted first',
 PRIMARY KEY (lcr_route_sid)
-) COMMENT='Least cost routing table';
+) COMMENT='An ordered list of  digit patterns in an LCR table.  The patterns are tested in sequence until one matches';
+
+CREATE TABLE lcr
+(
+lcr_sid CHAR(36) NOT NULL UNIQUE ,
+name VARCHAR(64) COMMENT 'User-assigned name for this LCR table',
+is_active BOOLEAN NOT NULL DEFAULT 1,
+default_carrier_set_entry_sid CHAR(36) COMMENT 'default carrier/route to use when no digit match based results are found.',
+service_provider_sid CHAR(36),
+account_sid CHAR(36),
+PRIMARY KEY (lcr_sid)
+) COMMENT='An LCR (least cost routing) table that is used by a service provider or account to make decisions about routing outbound calls when multiple carriers are available.';
 
 CREATE TABLE password_settings
 (
 min_password_length INTEGER NOT NULL DEFAULT 8,
 require_digit BOOLEAN NOT NULL DEFAULT false,
 require_special_character BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE permissions
+(
+permission_sid CHAR(36) NOT NULL UNIQUE ,
+name VARCHAR(32) NOT NULL UNIQUE ,
+description VARCHAR(255),
+PRIMARY KEY (permission_sid)
 );
 
 CREATE TABLE predefined_carriers
@@ -236,7 +281,10 @@ CREATE TABLE sbc_addresses
 sbc_address_sid CHAR(36) NOT NULL UNIQUE ,
 ipv4 VARCHAR(255) NOT NULL,
 port INTEGER NOT NULL DEFAULT 5060,
+tls_port INTEGER,
+wss_port INTEGER,
 service_provider_sid CHAR(36),
+last_updated DATETIME,
 PRIMARY KEY (sbc_address_sid)
 );
 
@@ -292,7 +340,26 @@ last_tested DATETIME,
 tts_tested_ok BOOLEAN,
 stt_tested_ok BOOLEAN,
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+label VARCHAR(64),
 PRIMARY KEY (speech_credential_sid)
+);
+
+CREATE TABLE google_custom_voices
+(
+google_custom_voice_sid CHAR(36) NOT NULL UNIQUE ,
+speech_credential_sid CHAR(36) NOT NULL,
+model VARCHAR(512) NOT NULL,
+reported_usage ENUM('REPORTED_USAGE_UNSPECIFIED','REALTIME','OFFLINE') DEFAULT 'REALTIME',
+name VARCHAR(64) NOT NULL,
+PRIMARY KEY (google_custom_voice_sid)
+);
+
+CREATE TABLE system_information
+(
+domain_name VARCHAR(255),
+sip_domain_name VARCHAR(255),
+monitoring_domain_name VARCHAR(255),
+private_network_cidr VARCHAR(8192)
 );
 
 CREATE TABLE users
@@ -345,8 +412,18 @@ smpp_inbound_password VARCHAR(64),
 register_from_user VARCHAR(128),
 register_from_domain VARCHAR(255),
 register_public_ip_in_contact BOOLEAN NOT NULL DEFAULT false,
+register_status VARCHAR(4096),
+pad_crypto BOOLEAN NOT NULL DEFAULT 0,
 PRIMARY KEY (voip_carrier_sid)
 ) COMMENT='A Carrier or customer PBX that can send or receive calls';
+
+CREATE TABLE user_permissions
+(
+user_permissions_sid CHAR(36) NOT NULL UNIQUE ,
+user_sid CHAR(36) NOT NULL,
+permission_sid CHAR(36) NOT NULL,
+PRIMARY KEY (user_permissions_sid)
+);
 
 CREATE TABLE smpp_gateways
 (
@@ -365,7 +442,7 @@ PRIMARY KEY (smpp_gateway_sid)
 CREATE TABLE phone_numbers
 (
 phone_number_sid CHAR(36) UNIQUE ,
-number VARCHAR(32) NOT NULL UNIQUE ,
+number VARCHAR(132) NOT NULL,
 voip_carrier_sid CHAR(36),
 account_sid CHAR(36),
 application_sid CHAR(36),
@@ -378,11 +455,15 @@ CREATE TABLE sip_gateways
 sip_gateway_sid CHAR(36),
 ipv4 VARCHAR(128) NOT NULL COMMENT 'ip address or DNS name of the gateway.  For gateways providing inbound calling service, ip address is required.',
 netmask INTEGER NOT NULL DEFAULT 32,
-port INTEGER NOT NULL DEFAULT 5060 COMMENT 'sip signaling port',
+port INTEGER COMMENT 'sip signaling port',
 inbound BOOLEAN NOT NULL COMMENT 'if true, whitelist this IP to allow inbound calls from the gateway',
 outbound BOOLEAN NOT NULL COMMENT 'if true, include in least-cost routing when placing calls to the PSTN',
 voip_carrier_sid CHAR(36) NOT NULL,
 is_active BOOLEAN NOT NULL DEFAULT 1,
+send_options_ping BOOLEAN NOT NULL DEFAULT 0,
+use_sips_scheme BOOLEAN NOT NULL DEFAULT 0,
+pad_crypto BOOLEAN NOT NULL DEFAULT 0,
+protocol ENUM('udp','tcp','tls', 'tls/srtp') DEFAULT 'udp' COMMENT 'Outbound call protocol',
 PRIMARY KEY (sip_gateway_sid)
 ) COMMENT='A whitelisted sip gateway used for origination/termination';
 
@@ -415,12 +496,24 @@ account_sid CHAR(36) COMMENT 'account that this application belongs to (if null,
 call_hook_sid CHAR(36) COMMENT 'webhook to call for inbound calls ',
 call_status_hook_sid CHAR(36) COMMENT 'webhook to call for call status events',
 messaging_hook_sid CHAR(36) COMMENT 'webhook to call for inbound SMS/MMS ',
+app_json TEXT,
 speech_synthesis_vendor VARCHAR(64) NOT NULL DEFAULT 'google',
 speech_synthesis_language VARCHAR(12) NOT NULL DEFAULT 'en-US',
-speech_synthesis_voice VARCHAR(64),
+speech_synthesis_voice VARCHAR(256),
+speech_synthesis_label VARCHAR(64),
 speech_recognizer_vendor VARCHAR(64) NOT NULL DEFAULT 'google',
 speech_recognizer_language VARCHAR(64) NOT NULL DEFAULT 'en-US',
+speech_recognizer_label VARCHAR(64),
+use_for_fallback_speech BOOLEAN DEFAULT false,
+fallback_speech_synthesis_vendor VARCHAR(64),
+fallback_speech_synthesis_language VARCHAR(12),
+fallback_speech_synthesis_voice VARCHAR(256),
+fallback_speech_synthesis_label VARCHAR(64),
+fallback_speech_recognizer_vendor VARCHAR(64),
+fallback_speech_recognizer_language VARCHAR(64),
+fallback_speech_recognizer_label VARCHAR(64),
 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+record_all_calls BOOLEAN NOT NULL DEFAULT false,
 PRIMARY KEY (application_sid)
 ) COMMENT='A defined set of behaviors to be applied to phone calls ';
 
@@ -458,6 +551,9 @@ subspace_client_secret VARCHAR(255),
 subspace_sip_teleport_id VARCHAR(255),
 subspace_sip_teleport_destinations VARCHAR(255),
 siprec_hook_sid CHAR(36),
+record_all_calls BOOLEAN NOT NULL DEFAULT false,
+record_format VARCHAR(16) NOT NULL DEFAULT 'mp3',
+bucket_credential VARCHAR(8192) COMMENT 'credential used to authenticate with storage service',
 PRIMARY KEY (account_sid)
 ) COMMENT='An enterprise that uses the platform for comm services';
 
@@ -478,9 +574,21 @@ ALTER TABLE call_routes ADD FOREIGN KEY account_sid_idxfk_3 (account_sid) REFERE
 
 ALTER TABLE call_routes ADD FOREIGN KEY application_sid_idxfk (application_sid) REFERENCES applications (application_sid);
 
+CREATE INDEX client_sid_idx ON clients (client_sid);
+ALTER TABLE clients ADD CONSTRAINT account_sid_idxfk_13 FOREIGN KEY account_sid_idxfk_13 (account_sid) REFERENCES accounts (account_sid);
+
 CREATE INDEX dns_record_sid_idx ON dns_records (dns_record_sid);
 ALTER TABLE dns_records ADD FOREIGN KEY account_sid_idxfk_4 (account_sid) REFERENCES accounts (account_sid);
 
+CREATE INDEX lcr_sid_idx ON lcr_routes (lcr_sid);
+ALTER TABLE lcr_routes ADD FOREIGN KEY lcr_sid_idxfk (lcr_sid) REFERENCES lcr (lcr_sid);
+
+CREATE INDEX lcr_sid_idx ON lcr (lcr_sid);
+ALTER TABLE lcr ADD FOREIGN KEY default_carrier_set_entry_sid_idxfk (default_carrier_set_entry_sid) REFERENCES lcr_carrier_set_entry (lcr_carrier_set_entry_sid);
+
+CREATE INDEX service_provider_sid_idx ON lcr (service_provider_sid);
+CREATE INDEX account_sid_idx ON lcr (account_sid);
+CREATE INDEX permission_sid_idx ON permissions (permission_sid);
 CREATE INDEX predefined_carrier_sid_idx ON predefined_carriers (predefined_carrier_sid);
 CREATE INDEX predefined_sip_gateway_sid_idx ON predefined_sip_gateways (predefined_sip_gateway_sid);
 CREATE INDEX predefined_carrier_sid_idx ON predefined_sip_gateways (predefined_carrier_sid);
@@ -533,14 +641,16 @@ CREATE INDEX smpp_address_sid_idx ON smpp_addresses (smpp_address_sid);
 CREATE INDEX service_provider_sid_idx ON smpp_addresses (service_provider_sid);
 ALTER TABLE smpp_addresses ADD FOREIGN KEY service_provider_sid_idxfk_4 (service_provider_sid) REFERENCES service_providers (service_provider_sid);
 
-CREATE UNIQUE INDEX speech_credentials_idx_1 ON speech_credentials (vendor,account_sid);
-
 CREATE INDEX speech_credential_sid_idx ON speech_credentials (speech_credential_sid);
 CREATE INDEX service_provider_sid_idx ON speech_credentials (service_provider_sid);
 ALTER TABLE speech_credentials ADD FOREIGN KEY service_provider_sid_idxfk_5 (service_provider_sid) REFERENCES service_providers (service_provider_sid);
 
 CREATE INDEX account_sid_idx ON speech_credentials (account_sid);
 ALTER TABLE speech_credentials ADD FOREIGN KEY account_sid_idxfk_8 (account_sid) REFERENCES accounts (account_sid);
+
+CREATE INDEX google_custom_voice_sid_idx ON google_custom_voices (google_custom_voice_sid);
+CREATE INDEX speech_credential_sid_idx ON google_custom_voices (speech_credential_sid);
+ALTER TABLE google_custom_voices ADD FOREIGN KEY speech_credential_sid_idxfk (speech_credential_sid) REFERENCES speech_credentials (speech_credential_sid) ON DELETE CASCADE;
 
 CREATE INDEX user_sid_idx ON users (user_sid);
 CREATE INDEX email_idx ON users (email);
@@ -561,9 +671,17 @@ ALTER TABLE voip_carriers ADD FOREIGN KEY service_provider_sid_idxfk_7 (service_
 
 ALTER TABLE voip_carriers ADD FOREIGN KEY application_sid_idxfk_2 (application_sid) REFERENCES applications (application_sid);
 
+CREATE INDEX user_permissions_sid_idx ON user_permissions (user_permissions_sid);
+CREATE INDEX user_sid_idx ON user_permissions (user_sid);
+ALTER TABLE user_permissions ADD FOREIGN KEY user_sid_idxfk (user_sid) REFERENCES users (user_sid) ON DELETE CASCADE;
+
+ALTER TABLE user_permissions ADD FOREIGN KEY permission_sid_idxfk (permission_sid) REFERENCES permissions (permission_sid);
+
 CREATE INDEX smpp_gateway_sid_idx ON smpp_gateways (smpp_gateway_sid);
 CREATE INDEX voip_carrier_sid_idx ON smpp_gateways (voip_carrier_sid);
 ALTER TABLE smpp_gateways ADD FOREIGN KEY voip_carrier_sid_idxfk (voip_carrier_sid) REFERENCES voip_carriers (voip_carrier_sid);
+
+CREATE UNIQUE INDEX phone_numbers_unique_idx_voip_carrier_number ON phone_numbers (number,voip_carrier_sid);
 
 CREATE INDEX phone_number_sid_idx ON phone_numbers (phone_number_sid);
 CREATE INDEX number_idx ON phone_numbers (number);
