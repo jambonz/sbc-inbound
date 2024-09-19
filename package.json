@@ -1,9 +1,9 @@
 {
   "name": "sbc-inbound",
-  "version": "0.9.0",
+  "version": "0.9.2",
   "main": "app.js",
   "engines": {
-    "node": ">= 12.0.0"
+    "node": ">= 18.0.0"
   },
   "keywords": [
     "sip",
@@ -22,10 +22,11 @@
     "start": "node app",
     "test": "NODE_ENV=test HTTP_PORT=3050 JAMBONES_NETWORK_CIDR='127.0.0.1/32' JAMBONES_HOSTING=1 JWT_SECRET=foobarbazzle SBC_ACCOUNT_SID=ed649e33-e771-403a-8c99-1780eabbc803 JAMBONES_TIME_SERIES_HOST=127.0.0.1 JAMBONES_MYSQL_HOST=127.0.0.1 JAMBONES_MYSQL_USER=jambones_test JAMBONES_MYSQL_PASSWORD=jambones_test JAMBONES_MYSQL_DATABASE=jambones_test JAMBONES_REDIS_HOST=localhost JAMBONES_REDIS_PORT=16379 JAMBONES_LOGLEVEL=error DRACHTIO_SECRET=cymru DRACHTIO_HOST=127.0.0.1 DRACHTIO_PORT=9060 JAMBONES_RTPENGINES=127.0.0.1:12222 JAMBONES_FEATURE_SERVERS=172.38.0.11 node test/ ",
     "coverage": "./node_modules/.bin/nyc --reporter html --report-dir ./coverage npm run test",
-    "jslint": "eslint app.js lib"
+    "jslint": "eslint app.js lib",
+    "jslint:fix": "npm run jslint --fix"
   },
   "dependencies": {
-    "@jambonz/db-helpers": "^0.9.4",
+    "@jambonz/db-helpers": "^0.9.7",
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.8.8",
     "@jambonz/rtpengine-utils": "^0.4.4",

@@ -37,7 +37,7 @@ const {
 const StatsCollector = require('@jambonz/stats-collector');
 const CIDRMatcher = require('cidr-matcher');
 const stats = new StatsCollector(logger);
-const {equalsIgnoreOrder, createHealthCheckApp, systemHealth} = require('./lib/utils');
+const {equalsIgnoreOrder, createHealthCheckApp, systemHealth, parseHostPorts} = require('./lib/utils');
 const {LifeCycleEvents} = require('./lib/constants');
 const setNameRtp = `${(process.env.JAMBONES_CLUSTER_ID || 'default')}:active-rtp`;
 const rtpServers = [];
@@ -55,7 +55,8 @@ const {
   lookupAccountBySid,
   lookupAccountCapacitiesBySid,
   queryCallLimits,
-  lookupClientByAccountAndUsername
+  lookupClientByAccountAndUsername,
+  lookupSystemInformation
 } = require('@jambonz/db-helpers')({
   host: process.env.JAMBONES_MYSQL_HOST,
   port: process.env.JAMBONES_MYSQL_PORT || 3306,
@@ -91,6 +92,7 @@ srf.locals = {...srf.locals,
   AlertType,
   activeCallIds: new Map(),
   getRtpEngine,
+  privateNetworkCidr: process.env.PRIVATE_VOIP_NETWORK_CIDR || null,
   dbHelpers: {
     pool,
     ping,
@@ -102,7 +104,8 @@ srf.locals = {...srf.locals,
     lookupAccountBySipRealm,
     lookupAccountCapacitiesBySid,
     queryCallLimits,
-    lookupClientByAccountAndUsername
+    lookupClientByAccountAndUsername,
+    lookupSystemInformation
   },
   realtimeDbHelpers: {
     createSet,
@@ -183,7 +186,7 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
         srf.locals.addToRedis();
       }
     }
-    srf.locals.sbcPublicIpAddress = parseHostPorts(hostports);
+    srf.locals.sbcPublicIpAddress = parseHostPorts(logger, hostports, srf);
   });
 }
 else {
@@ -207,7 +210,7 @@ else {
         }
       }
     }
-    srf.locals.sbcPublicIpAddress = parseHostPorts(hp.split(','));
+    srf.locals.sbcPublicIpAddress = parseHostPorts(logger, hp, srf);
   });
 }
 if (process.env.NODE_ENV === 'test') {
@@ -273,10 +276,18 @@ if (process.env.K8S || process.env.HTTP_PORT) {
     });
 }
 if ('test' !== process.env.NODE_ENV) {
-  /* update call stats periodically */
-  setInterval(() => {
+  /* update call stats periodically as well as definition of private network cidr */
+  setInterval(async() => {
     stats.gauge('sbc.sip.calls.count', activeCallIds.size,
       ['direction:inbound', `instance_id:${process.env.INSTANCE_ID || 0}`]);
+
+    const r = await lookupSystemInformation();
+    if (r) {
+      if (r.private_network_cidr !== srf.locals.privateNetworkCidr) {
+        logger.info(`updating private network cidr from ${srf.locals.privateNetworkCidr} to ${r.private_network_cidr}`);
+        srf.locals.privateNetworkCidr = r.private_network_cidr;
+      }
+    }
   }, 20000);
 }
 
@@ -363,41 +374,5 @@ function handle(removeFromSet, setName, signal) {
     }
   }
 }
-
-const parseHostPorts = (hostports) => {
-  let obj = {};
-  for (const hp of hostports) {
-    const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
-    if (arr) {
-      const ipv4 = arr[2];
-      const port = arr[3];
-      switch (arr[1]) {
-        case 'udp':
-          obj = {
-            ...obj,
-            udp: `${ipv4}:${port}`
-          };
-          break;
-        case 'tls':
-          obj = {
-            ...obj,
-            tls: `${ipv4}:${port}`
-          };
-          break;
-        case 'wss':
-          obj = {
-            ...obj,
-            wss: `${ipv4}:${port}`
-          };
-          break;
-      }
-    }
-    if (!obj.tls) {
-      obj.tls = `${srf.locals.sipAddress}:5061`;
-    }
-  }
-  logger.info({obj}, 'sip endpoints');
-  return obj;
-};
 
 module.exports = {srf, logger};
