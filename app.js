@@ -287,6 +287,9 @@ if ('test' !== process.env.NODE_ENV) {
         logger.info(`updating private network cidr from ${srf.locals.privateNetworkCidr} to ${r.private_network_cidr}`);
         srf.locals.privateNetworkCidr = r.private_network_cidr;
       }
+      if (r.log_level) {
+        logger.level = r.log_level;
+      }
     }
   }, 20000);
 }
