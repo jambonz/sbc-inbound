@@ -32,7 +32,7 @@
     "@jambonz/rtpengine-utils": "^0.4.4",
     "@jambonz/siprec-client-utils": "^0.2.7",
     "@jambonz/stats-collector": "^0.1.10",
-    "@jambonz/time-series": "^0.2.8",
+    "@jambonz/time-series": "^0.2.10",
     "@jambonz/digest-utils": "^0.0.5",
     "@aws-sdk/client-sns": "^3.549.0",
     "@aws-sdk/client-auto-scaling": "^3.549.0",
