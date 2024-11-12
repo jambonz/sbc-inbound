@@ -23,7 +23,7 @@ services:
       sbc-inbound:
         ipv4_address: 172.38.0.2
   sbc:
-    image: drachtio/drachtio-server:latest
+    image: drachtio/drachtio-server:0.8.26
     command: drachtio --contact "sip:*;transport=udp" --loglevel debug --sofia-loglevel 9
     ports:
       - "9060:9022/tcp"
