@@ -240,6 +240,10 @@ srf.invite((req, res) => {
     }
     return session.replaces(req, res);
   }
+  if (req.locals.sdp === '') {
+    logger.info('no sdp in invite');
+    return res.send(488, {headers: {'X-Reason': 'no SDP packet in INVITE'}});
+  }
   const session = new CallSession(logger, req, res);
   session.connect();
 });
