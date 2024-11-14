@@ -35,7 +35,7 @@
       Max-Forwards: 70
       Subject: Performance Test
       Content-Type: application/sdp
-      Content-Length: [len]
+      Content-Length: 0
 
     ]]>
   </send>
