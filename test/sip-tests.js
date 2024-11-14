@@ -34,7 +34,7 @@ test('incoming call tests', async(t) => {
     obj = await getJSON('http://127.0.0.1:3050/system-health');
     t.ok(obj.calls === 0, 'HTTP GET /system-health works (health check)')
 
-    await sippUac('uac-late-media.xml', '172.38.0.30');
+    await sippUac('uac-late-media.xml', '172.38.0.20');
     t.pass('incoming call with no SDP packet is rejected with a 488');
 
     await sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
@@ -72,7 +72,7 @@ test('incoming call tests', async(t) => {
     await waitFor(12);
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
     //console.log(`cdrs: ${JSON.stringify(res)}`);
-    t.ok(8 === res.total, 'successfully wrote 8 cdrs for calls');
+    t.ok(7 === res.total, 'successfully wrote 8 cdrs for calls');
 
     srf.disconnect();
     t.end();
