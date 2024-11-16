@@ -67,6 +67,7 @@ const {
 }, logger);
 const {
   client: redisClient,
+  addKey,
   createSet,
   retrieveSet,
   addToSet,
@@ -108,6 +109,7 @@ srf.locals = {...srf.locals,
     lookupSystemInformation
   },
   realtimeDbHelpers: {
+    addKey,
     createSet,
     incrKey,
     decrKey,
