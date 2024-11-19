@@ -147,43 +147,47 @@ if (process.env.DRACHTIO_HOST && !process.env.K8S) {
     .map((s) => s.trim());
   const matcher = new CIDRMatcher(cidrs);
 
+  const getActiveSbcAddress = (hostports) => {
+    let host = '', port = -1;
+    for (const hp of hostports) {
+      const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
+      // use tcp interface to get private IP address
+      if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
+        host = arr[2];
+      }
+      // use udp interface to get the port, due to jambonz's components send OPTIONS to sbc on UDP
+      else if (arr && 'udp' === arr[1]) {
+        port = arr[3] ? Number(arr[3]) : 5060;
+      }
+    }
+
+    if (!host || port === -1) {
+      throw new Error('Drachtio server is not configured for Jambonz,' +
+        'please run drachtio with udp interface and one tcp interface without extenal-ip');
+    }
+
+    return `${host}:${port}`;
+  };
+
   srf.connect({host: process.env.DRACHTIO_HOST, port: process.env.DRACHTIO_PORT, secret: process.env.DRACHTIO_SECRET });
   srf.on('connect', (err, hp, version, localHostports) => {
     if (err) return this.logger.error({err}, 'Error connecting to drachtio server');
-    let addedPrivateIp = false;
     logger.info(`connected to drachtio ${version} listening on ${hp}, local hostports: ${localHostports}`);
 
-    const hostports = hp.split(',');
+    const hostports = localHostports ? localHostports.split(',') : hp.split(',');
+    const hostport = getActiveSbcAddress(hostports);
+    logger.info(`adding sbc private address to redis: ${hostport}`);
+    srf.locals.privateSipAddress = hostport;
+    srf.locals.addToRedis = () => addToSet(setName, hostport);
+    srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
+    srf.locals.addToRedis();
 
-    if (localHostports) {
-      const locals = localHostports.split(',');
-      for (const hp of locals) {
-        const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
-        if (arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
-          const hostport = `${arr[2]}:${arr[3]}`;
-          logger.info(`adding sbc private address to redis: ${hostport}`);
-          srf.locals.privateSipAddress = hostport;
-          srf.locals.addToRedis = () => addToSet(setName, hostport);
-          srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
-          srf.locals.addToRedis();
-          addedPrivateIp = true;
-        }
-      }
-    }
     for (const hp of hostports) {
       const arr = /^(.*)\/(.*):(\d+)$/.exec(hp);
       if (arr && 'udp' === arr[1] && !matcher.contains(arr[2])) {
         logger.info(`adding sbc public address to database: ${arr[2]}`);
         srf.locals.sipAddress = arr[2];
         if (!process.env.SBC_ACCOUNT_SID) addSbcAddress(arr[2]);
-      }
-      else if (!addedPrivateIp && arr && 'tcp' === arr[1] && matcher.contains(arr[2])) {
-        const hostport = `${arr[2]}:${arr[3]}`;
-        logger.info(`adding sbc private address to redis: ${hostport}`);
-        srf.locals.privateSipAddress = hostport;
-        srf.locals.addToRedis = () => addToSet(setName, hostport);
-        srf.locals.removeFromRedis = () => removeFromSet(setName, hostport);
-        srf.locals.addToRedis();
       }
     }
     srf.locals.sbcPublicIpAddress = parseHostPorts(logger, hostports, srf);
