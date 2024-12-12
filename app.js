@@ -244,10 +244,6 @@ srf.invite((req, res) => {
     }
     return session.replaces(req, res);
   }
-  if (req.locals.sdp === '') {
-    logger.info('no sdp in invite');
-    return res.send(488, {headers: {'X-Reason': '3pcc INVITEs without SDP are not currently supported'}});
-  }
   const session = new CallSession(logger, req, res);
   session.connect();
 });
