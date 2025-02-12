@@ -30,7 +30,7 @@
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.8.8",
     "@jambonz/rtpengine-utils": "^0.4.4",
-    "@jambonz/siprec-client-utils": "^0.2.9",
+    "@jambonz/siprec-client-utils": "^0.2.10",
     "@jambonz/stats-collector": "^0.1.10",
     "@jambonz/time-series": "^0.2.10",
     "@jambonz/digest-utils": "^0.0.5",
