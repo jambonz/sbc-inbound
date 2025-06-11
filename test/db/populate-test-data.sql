@@ -92,3 +92,32 @@ insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outb
 values ('664a5339-c62c-4075-9e19-f4de70a96597', '731abdc7-0220-4964-bc66-32b5c70cd9ab', '172.38.0.40', true, false);
 insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
 values ('554a5339-c62c-4075-9e19-f4de70a96597', '987abdc7-0220-4964-bc66-32b5c70cd9ab', '172.38.0.40', true, false);
+
+-- voip carrier belonging to all accounts
+insert into voip_carriers (voip_carrier_sid, name, service_provider_sid) 
+values ('voip100', 'test-voip-carrier', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0');
+insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
+values ('sip100', 'voip100', '172.38.0.50', true, false);
+
+insert into voip_carriers (voip_carrier_sid, name, service_provider_sid) 
+values ('voip101', 'test-voip-carrier-101', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0');
+insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
+values ('sip101', 'voip101', '172.38.0.50', true, false);
+insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound) 
+values ('sip102', 'voip101', '172.38.0.51', true, false);
+
+insert into applications (application_sid, name, account_sid, call_hook_sid, call_status_hook_sid)
+values ('app100', 'app100', 'ee9d7d49-b3e4-4fdb-9d66-661149f717e8', '90dda62e-0ea2-47d1-8164-5bd49003476c', '90dda62e-0ea2-47d1-8164-5bd49003476c');
+insert into applications (application_sid, name, account_sid, call_hook_sid, call_status_hook_sid)
+values ('app101', 'app101', 'ee9d7d49-b3e4-4fdb-9d66-661149f717e8', '90dda62e-0ea2-47d1-8164-5bd49003476c', '90dda62e-0ea2-47d1-8164-5bd49003476c');
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid, application_sid)
+values ('phone100', '^100', 'voip101', 'ee9d7d49-b3e4-4fdb-9d66-661149f717e8', 'app100');
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid, application_sid)
+values ('phone101', '^10012', 'voip100', 'ee9d7d49-b3e4-4fdb-9d66-661149f717e8', 'app101');
+-- insert an invalid regex pattern, the below pattern should be ignored during pattern
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid, application_sid)
+values ('phone102', '\\dkjfhmdf\\', 'voip100', 'ee9d7d49-b3e4-4fdb-9d66-661149f717e8', 'app101');
+
+-- account with a sip realm that is not associated with any voip carriers
+insert into accounts (account_sid, name, service_provider_sid, webhook_secret, sip_realm)
+values ('acct-100', 'Account 100', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'foobar', 'ram.sip.jambonz.org');
