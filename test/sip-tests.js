@@ -64,6 +64,15 @@ test('incoming call tests', async(t) => {
     await sippUac('uac-pcap-carrier-max-call-limit.xml', '172.38.0.20');
     t.pass('rejects incoming call with 503 when max calls per account reached');
 
+    await sippUac('uac-did-regex-match-vc-all-accts.xml', '172.38.0.50');
+    t.pass('incoming call matched by trailing wildcard *, voice gateway belongs to all accounts, with sip realm');
+
+    await sippUac('uac-did-regex-match-vc-all-accts-nosiprealm.xml', '172.38.0.51');
+    t.pass('incoming call matched by trailing wildcard *, voice gateway belongs to all accounts, without sip realm');
+
+    await sippUac('uac-did-regex-match-vc-all-accts-nosiprealm.xml', '172.38.0.50');
+    t.pass('incoming call matched by trailing wildcard *, voice gateway belongs to all accounts, without sip realm');
+
     /* switch off this env for remaining tests (JAMBONES_HOSTING is for Saas sts) */
     delete process.env.JAMBONES_HOSTING;
     await sippUac('uac-pcap-carrier-fail-ambiguous.xml', '172.38.0.40');
@@ -71,6 +80,7 @@ test('incoming call tests', async(t) => {
   
     await waitFor(12);
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
+    console.log(`cdrs res.total: ${res.total}`);
     //console.log(`cdrs: ${JSON.stringify(res)}`);
     t.ok(7 === res.total, 'successfully wrote 8 cdrs for calls');
 
