@@ -246,10 +246,10 @@ srf.invite((req, res) => {
     }
     return session.replaces(req, res);
   }
-  if (req.uri) {
-    req.set('X-Original-Request-URI', req.uri);
-    logger.debug({uri: req.uri}, 'Added X-Original-Request-URI header');
-  }
+  
+  req.set('X-Original-Request-URI', req.uri);
+  logger.debug({uri: req.uri}, 'Added X-Original-Request-URI header');
+  
   const session = new CallSession(logger, req, res);
   session.connect();
 });
