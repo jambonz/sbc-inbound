@@ -3,14 +3,14 @@
     "transport-protocol": "UDP/TLS/RTP/SAVPF",
     "ICE": "default",
     "SDES": "off",
-    "flags": ["generate mid", "SDES-no", "media handover", "port latching"],
+    "flags": ["generate mid", "SDES-no", "strict source", "port latching"],
     "rtcp-mux": ["require"]  
   },
   "teams": {
     "transport-protocol": "RTP/SAVP",
     "ICE": "default",
     "SDES": "off",
-    "flags": ["generate mid", "SDES-no", "media handover", "port latching"],
+    "flags": ["generate mid", "SDES-no", "strict source", "port latching"],
     "rtcp-mux": ["accept"]
   }
 }
