@@ -3,6 +3,6 @@
   "DTLS": "off",
   "SDES": "off",
   "ICE": "remove",
-  "flags": ["strict source", "port latching"],
+  "flags": ["port latching"],
   "rtcp-mux": ["accept"]
 }
