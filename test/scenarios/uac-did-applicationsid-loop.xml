@@ -4,10 +4,10 @@
   <send retrans="500">
     <![CDATA[
 
-      INVITE sip:+15082223333@jambonz.org SIP/2.0
+      INVITE sip:+12125551212@jambonz.org SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
       From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
-      To: <sip:15082223333@jambonz.org>
+      To: <sip:12125551212@jambonz.org>
       Call-ID: [call_id]
       CSeq: 1 INVITE
       Contact: sip:sipp@[local_ip]:[local_port]
@@ -30,20 +30,7 @@
   <recv response="100" optional="true">
   </recv>
                 
-  <recv response="482" rtd="true" crlf="true">
+  <recv response="482" rtd="true" >
   </recv>
 
-  <send>
-    <![CDATA[
-      ACK sip:[service]@[remote_ip]:[remote_port] SIP/2.0
-      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-      From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[pid]SIPpTag09[call_number]
-      To: <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
-      Call-ID: [call_id]
-      CSeq: 1 ACK
-      Max-Forwards: 70
-      Content-Length: 0
-
-]]>
-  </send>
 </scenario>
