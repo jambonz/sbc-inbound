@@ -72,6 +72,9 @@ values ('d458bf7a-bcea-47b2-ac96-66dfc9c5c220', '150822233*', '287c1452-620d-419
 insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid)
 values ('f7ad205d-b92f-4363-8160-f8b5216b40d3', '15083871234', '287c1452-620d-4195-9f19-c9814ef90d78', 'd7cc37cb-d152-49ef-a51b-485f6e917089');
 
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid, application_sid)
+values ('c17d5a7d-9328-4663-92c0-f65aa8381264', '12125551212', '287c1452-620d-4195-9f19-c9814ef90d78', 'ed649e33-e771-403a-8c99-1780eabbc803', '3b43e39f-4346-4218-8434-a53130e8be49');
+
 -- two accounts that both have the same carrier with default routing (ambiguity test)
 insert into accounts (account_sid, name, service_provider_sid, webhook_secret, sip_realm)
 values ('239d7d49-b3e4-4fdb-9d66-661149f717e8', 'Account B1', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'foobar', 'echo2.sip.jambonz.org');
