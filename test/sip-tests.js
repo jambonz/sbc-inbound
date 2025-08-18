@@ -37,6 +37,9 @@ test('incoming call tests', async(t) => {
     await sippUac('uac-late-media.xml', '172.38.0.20');
     t.pass('incoming call with no SDP packet is rejected with a 488');
 
+    await sippUac('uac-did-applicationsid-loop.xml', '172.38.0.20');
+    t.pass('incoming call with x-application-sid header is rejected with 482');
+
     await sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     t.pass('incoming call from carrier completed successfully');
 
