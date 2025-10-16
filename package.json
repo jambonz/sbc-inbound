@@ -30,7 +30,7 @@
     "@aws-sdk/client-sns": "^3.549.0",
     "@babel/helpers": "^7.26.10",
     "@jambonz/db-helpers": "^0.9.18",
-    "@jambonz/digest-utils": "^0.0.6",
+    "@jambonz/digest-utils": "^0.0.8",
     "@jambonz/http-health-check": "^0.0.1",
     "@jambonz/realtimedb-helpers": "^0.8.13",
     "@jambonz/rtpengine-utils": "^0.4.4",
