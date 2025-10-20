@@ -32,7 +32,7 @@
     "@jambonz/db-helpers": "^0.9.18",
     "@jambonz/digest-utils": "^0.0.8",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.8.13",
+    "@jambonz/realtimedb-helpers": "^0.8.18",
     "@jambonz/rtpengine-utils": "^0.4.4",
     "@jambonz/siprec-client-utils": "^0.2.10",
     "@jambonz/stats-collector": "^0.1.10",
