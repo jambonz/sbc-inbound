@@ -43,6 +43,12 @@ test('incoming call tests', async(t) => {
     await sippUac('uac-pcap-carrier-success.xml', '172.38.0.20');
     t.pass('incoming call from carrier completed successfully');
 
+    // Test ephemeral gateway (registration trunk)
+    const { createEphemeralGateway } = srf.locals.realtimeDbHelpers;
+    await createEphemeralGateway('172.38.0.60', '4a7d1c8e-5f2b-4d9a-8e3c-6b5a9f1e4c7d', 3600);
+    await sippUac('uac-pcap-ephemeral-gateway-success.xml', '172.38.0.60');
+    t.pass('incoming call from ephemeral gateway (registration trunk) completed successfully');
+
     await sippUac('uac-pcap-pbx-success.xml', '172.38.0.21');
     t.pass('incoming call from account-level carrier completed successfully');
   
@@ -85,7 +91,7 @@ test('incoming call tests', async(t) => {
     const res = await queryCdrs({account_sid: 'ed649e33-e771-403a-8c99-1780eabbc803'});
     console.log(`cdrs res.total: ${res.total}`);
     //console.log(`cdrs: ${JSON.stringify(res)}`);
-    t.ok(7 === res.total, 'successfully wrote 8 cdrs for calls');
+    t.ok(8 === res.total, 'successfully wrote 8 cdrs for calls (including ephemeral gateway)');
 
     srf.disconnect();
     t.end();
