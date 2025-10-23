@@ -75,7 +75,10 @@ const {
   addToSet,
   removeFromSet,
   incrKey,
-  decrKey} = require('@jambonz/realtimedb-helpers')({}, logger);
+  decrKey,
+  createEphemeralGateway,
+  queryEphemeralGateways
+} = require('@jambonz/realtimedb-helpers')({}, logger);
 
 const ngProtocol = process.env.JAMBONES_NG_PROTOCOL || 'udp';
 const ngPort = process.env.RTPENGINE_PORT || ('udp' === ngProtocol ? 22222 : 8080);
@@ -117,7 +120,9 @@ srf.locals = {...srf.locals,
     createSet,
     incrKey,
     decrKey,
-    retrieveSet
+    retrieveSet,
+    createEphemeralGateway,
+    queryEphemeralGateways
   }
 };
 const {

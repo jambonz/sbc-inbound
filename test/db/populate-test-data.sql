@@ -124,3 +124,19 @@ values ('phone102', '\\dkjfhmdf\\', 'voip100', 'ee9d7d49-b3e4-4fdb-9d66-661149f7
 -- account with a sip realm that is not associated with any voip carriers
 insert into accounts (account_sid, name, service_provider_sid, webhook_secret, sip_realm)
 values ('acct-100', 'Account 100', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'foobar', 'ram.sip.jambonz.org');
+
+-- registration trunk carrier for ephemeral gateway testing
+insert into voip_carriers (voip_carrier_sid, name, account_sid, service_provider_sid, trunk_type,
+    requires_register, register_username, register_sip_realm, register_password, is_active)
+values ('4a7d1c8e-5f2b-4d9a-8e3c-6b5a9f1e4c7d', 'test-registration-trunk', 'ed649e33-e771-403a-8c99-1780eabbc803',
+    '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'registration', true, 'testuser',
+    'sip.carrier.example.com', 'testpass', true);
+
+-- sip_gateway for outbound only (inbound will use ephemeral gateway from Redis)
+insert into sip_gateways (sip_gateway_sid, voip_carrier_sid, ipv4, inbound, outbound)
+values ('8b3e5f9a-2c1d-4e7b-9a6c-3d8f1e5a7b2c', '4a7d1c8e-5f2b-4d9a-8e3c-6b5a9f1e4c7d', '3.3.3.3', false, true);
+
+-- phone number for ephemeral gateway test
+insert into phone_numbers (phone_number_sid, number, voip_carrier_sid, account_sid, application_sid)
+values ('7c2d4e6f-8a1b-4c9d-7e5f-2a8b3c6d9e1f', '16175551000', '4a7d1c8e-5f2b-4d9a-8e3c-6b5a9f1e4c7d', 'ed649e33-e771-403a-8c99-1780eabbc803',
+    '3b43e39f-4346-4218-8434-a53130e8be49');

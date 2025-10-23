@@ -13,8 +13,6 @@ DROP TABLE IF EXISTS beta_invite_codes;
 
 DROP TABLE IF EXISTS call_routes;
 
-DROP TABLE IF EXISTS clients;
-
 DROP TABLE IF EXISTS dns_records;
 
 DROP TABLE IF EXISTS lcr;
@@ -66,6 +64,8 @@ DROP TABLE IF EXISTS smpp_gateways;
 DROP TABLE IF EXISTS phone_numbers;
 
 DROP TABLE IF EXISTS sip_gateways;
+
+DROP TABLE IF EXISTS clients;
 
 DROP TABLE IF EXISTS voip_carriers;
 
@@ -131,19 +131,6 @@ application_sid CHAR(36) NOT NULL,
 PRIMARY KEY (call_route_sid)
 ) COMMENT='a regex-based pattern match for call routing';
 
-CREATE TABLE clients
-(
-client_sid CHAR(36) NOT NULL UNIQUE ,
-account_sid CHAR(36) NOT NULL,
-is_active BOOLEAN NOT NULL DEFAULT 1,
-username VARCHAR(64),
-password VARCHAR(1024),
-allow_direct_app_calling BOOLEAN NOT NULL DEFAULT 1,
-allow_direct_queue_calling BOOLEAN NOT NULL DEFAULT 1,
-allow_direct_user_calling BOOLEAN NOT NULL DEFAULT 1,
-PRIMARY KEY (client_sid)
-);
-
 CREATE TABLE dns_records
 (
 dns_record_sid CHAR(36) NOT NULL UNIQUE ,
@@ -161,7 +148,7 @@ regex VARCHAR(32) NOT NULL COMMENT 'regex-based pattern match against dialed num
 description VARCHAR(1024),
 priority INTEGER NOT NULL COMMENT 'lower priority routes are attempted first',
 PRIMARY KEY (lcr_route_sid)
-) COMMENT='An ordered list of  digit patterns in an LCR table.  The patterns are tested in sequence until one matches';
+) COMMENT='An ordered list of  digit patterns in an LCR table.  The pat';
 
 CREATE TABLE lcr
 (
@@ -172,7 +159,7 @@ default_carrier_set_entry_sid CHAR(36) COMMENT 'default carrier/route to use whe
 service_provider_sid CHAR(36),
 account_sid CHAR(36),
 PRIMARY KEY (lcr_sid)
-) COMMENT='An LCR (least cost routing) table that is used by a service provider or account to make decisions about routing outbound calls when multiple carriers are available.';
+) COMMENT='An LCR (least cost routing) table that is used by a service ';
 
 CREATE TABLE password_settings
 (
@@ -417,7 +404,7 @@ register_public_ip_in_contact BOOLEAN NOT NULL DEFAULT false,
 register_status VARCHAR(4096),
 dtmf_type ENUM('rfc2833','tones','info') NOT NULL DEFAULT 'rfc2833',
 outbound_sip_proxy VARCHAR(255),
-trunk_type ENUM('static_ip','auth','reg') NOT NULL DEFAULT 'static_ip',
+trunk_type ENUM('static-ip','auth','registration') NOT NULL DEFAULT 'static-ip',
 PRIMARY KEY (voip_carrier_sid)
 ) COMMENT='A Carrier or customer PBX that can send or receive calls';
 
@@ -490,6 +477,20 @@ username VARCHAR(255),
 password VARCHAR(255),
 PRIMARY KEY (webhook_sid)
 ) COMMENT='An HTTP callback';
+
+CREATE TABLE clients
+(
+client_sid CHAR(36) NOT NULL UNIQUE ,
+account_sid CHAR(36) NOT NULL,
+is_active BOOLEAN NOT NULL DEFAULT 1,
+username VARCHAR(64),
+password VARCHAR(1024),
+allow_direct_app_calling BOOLEAN NOT NULL DEFAULT 1,
+allow_direct_queue_calling BOOLEAN NOT NULL DEFAULT 1,
+allow_direct_user_calling BOOLEAN NOT NULL DEFAULT 1,
+voip_carrier_sid CHAR(36),
+PRIMARY KEY (client_sid)
+);
 
 CREATE TABLE applications
 (
@@ -579,9 +580,6 @@ CREATE INDEX call_route_sid_idx ON call_routes (call_route_sid);
 ALTER TABLE call_routes ADD FOREIGN KEY account_sid_idxfk_3 (account_sid) REFERENCES accounts (account_sid);
 
 ALTER TABLE call_routes ADD FOREIGN KEY application_sid_idxfk (application_sid) REFERENCES applications (application_sid);
-
-CREATE INDEX client_sid_idx ON clients (client_sid);
-ALTER TABLE clients ADD CONSTRAINT account_sid_idxfk_13 FOREIGN KEY account_sid_idxfk_13 (account_sid) REFERENCES accounts (account_sid);
 
 CREATE INDEX dns_record_sid_idx ON dns_records (dns_record_sid);
 ALTER TABLE dns_records ADD FOREIGN KEY account_sid_idxfk_4 (account_sid) REFERENCES accounts (account_sid);
@@ -711,6 +709,11 @@ ALTER TABLE lcr_carrier_set_entry ADD FOREIGN KEY lcr_route_sid_idxfk (lcr_route
 ALTER TABLE lcr_carrier_set_entry ADD FOREIGN KEY voip_carrier_sid_idxfk_3 (voip_carrier_sid) REFERENCES voip_carriers (voip_carrier_sid);
 
 CREATE INDEX webhook_sid_idx ON webhooks (webhook_sid);
+CREATE INDEX client_sid_idx ON clients (client_sid);
+ALTER TABLE clients ADD CONSTRAINT account_sid_idxfk_13 FOREIGN KEY account_sid_idxfk_13 (account_sid) REFERENCES accounts (account_sid);
+
+ALTER TABLE clients ADD FOREIGN KEY voip_carrier_sid_idxfk_4 (voip_carrier_sid) REFERENCES voip_carriers (voip_carrier_sid);
+
 CREATE UNIQUE INDEX applications_idx_name ON applications (account_sid,name);
 
 CREATE INDEX application_sid_idx ON applications (application_sid);
@@ -744,4 +747,4 @@ ALTER TABLE accounts ADD FOREIGN KEY device_calling_application_sid_idxfk (devic
 
 ALTER TABLE accounts ADD FOREIGN KEY siprec_hook_sid_idxfk (siprec_hook_sid) REFERENCES applications (application_sid);
 
-SET FOREIGN_KEY_CHECKS=1;
+SET FOREIGN_KEY_CHECKS=0;

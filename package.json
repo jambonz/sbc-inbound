@@ -32,7 +32,7 @@
     "@jambonz/db-helpers": "^0.9.18",
     "@jambonz/digest-utils": "^0.0.8",
     "@jambonz/http-health-check": "^0.0.1",
-    "@jambonz/realtimedb-helpers": "^0.8.13",
+    "@jambonz/realtimedb-helpers": "^0.8.18",
     "@jambonz/rtpengine-utils": "^0.4.4",
     "@jambonz/siprec-client-utils": "^0.2.10",
     "@jambonz/stats-collector": "^0.1.10",
@@ -43,13 +43,13 @@
     "drachtio-fn-b2b-sugar": "0.2.1",
     "drachtio-srf": "^5.0.5",
     "express": "^4.19.2",
-    "pino": "^8.20.0",
+    "pino": "^10.1.0",
     "verify-aws-sns-signature": "^0.1.0",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-plugin-promise": "^6.1.1",
+    "eslint": "^9.17.0",
+    "eslint-plugin-promise": "^7.2.1",
     "nyc": "^15.1.0",
     "tape": "^5.7.5"
   }
