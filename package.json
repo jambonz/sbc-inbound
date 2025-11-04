@@ -3,7 +3,7 @@
   "version": "0.9.5",
   "main": "app.js",
   "engines": {
-    "node": ">= 18.0.0"
+    "node": ">= 20.0.0"
   },
   "keywords": [
     "sip",
@@ -39,10 +39,10 @@
     "@jambonz/time-series": "^0.2.10",
     "bent": "^7.3.12",
     "cidr-matcher": "^2.1.1",
-    "debug": "^4.3.4",
+    "debug": "^4.4.3",
     "drachtio-fn-b2b-sugar": "0.2.1",
     "drachtio-srf": "^5.0.5",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "pino": "^10.1.0",
     "verify-aws-sns-signature": "^0.1.0",
     "xml2js": "^0.6.2"
