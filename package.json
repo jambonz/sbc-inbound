@@ -42,7 +42,7 @@
     "debug": "^4.4.3",
     "drachtio-fn-b2b-sugar": "0.2.1",
     "drachtio-srf": "^5.0.5",
-    "express": "^4.21.2",
+    "express": "^4.22.0",
     "pino": "^10.1.0",
     "verify-aws-sns-signature": "^0.1.0",
     "xml2js": "^0.6.2"
