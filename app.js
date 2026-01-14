@@ -64,7 +64,15 @@ const {
   password: process.env.JAMBONES_MYSQL_PASSWORD,
   database: process.env.JAMBONES_MYSQL_DATABASE,
   connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
-}, logger);
+}, logger, process.env.JAMBONES_MYSQL_WRITE_HOST && process.env.JAMBONES_MYSQL_WRITE_USER &&
+  process.env.JAMBONES_MYSQL_WRITE_PASSWORD && process.env.JAMBONES_MYSQL_WRITE_DATABASE ? {
+    host: process.env.JAMBONES_MYSQL_WRITE_HOST,
+    port: process.env.JAMBONES_MYSQL_WRITE_PORT || 3306,
+    user: process.env.JAMBONES_MYSQL_WRITE_USER,
+    password: process.env.JAMBONES_MYSQL_WRITE_PASSWORD,
+    database: process.env.JAMBONES_MYSQL_WRITE_DATABASE,
+    connectionLimit: process.env.JAMBONES_MYSQL_CONNECTION_LIMIT || 10
+  } : null);
 const {
   client: redisClient,
   addKey,
