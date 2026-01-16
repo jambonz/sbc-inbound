@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS beta_invite_codes;
 
 DROP TABLE IF EXISTS call_routes;
 
+DROP TABLE IF EXISTS clients;
+
 DROP TABLE IF EXISTS dns_records;
 
 DROP TABLE IF EXISTS lcr;
@@ -65,8 +67,6 @@ DROP TABLE IF EXISTS smpp_gateways;
 DROP TABLE IF EXISTS phone_numbers;
 
 DROP TABLE IF EXISTS sip_gateways;
-
-DROP TABLE IF EXISTS clients;
 
 DROP TABLE IF EXISTS voip_carriers;
 
@@ -132,6 +132,19 @@ application_sid CHAR(36) NOT NULL,
 PRIMARY KEY (call_route_sid)
 ) COMMENT='a regex-based pattern match for call routing';
 
+CREATE TABLE clients
+(
+client_sid CHAR(36) NOT NULL UNIQUE ,
+account_sid CHAR(36) NOT NULL,
+is_active BOOLEAN NOT NULL DEFAULT 1,
+username VARCHAR(64),
+password VARCHAR(1024),
+allow_direct_app_calling BOOLEAN NOT NULL DEFAULT 1,
+allow_direct_queue_calling BOOLEAN NOT NULL DEFAULT 1,
+allow_direct_user_calling BOOLEAN NOT NULL DEFAULT 1,
+PRIMARY KEY (client_sid)
+);
+
 CREATE TABLE dns_records
 (
 dns_record_sid CHAR(36) NOT NULL UNIQUE ,
@@ -191,6 +204,7 @@ tech_prefix VARCHAR(16) COMMENT 'tech prefix to prepend to outbound calls to thi
 inbound_auth_username VARCHAR(64),
 inbound_auth_password VARCHAR(64),
 diversion VARCHAR(32),
+trunk_type ENUM('static_ip','auth','reg') NOT NULL DEFAULT 'static_ip',
 PRIMARY KEY (predefined_carrier_sid)
 );
 
@@ -405,7 +419,7 @@ register_public_ip_in_contact BOOLEAN NOT NULL DEFAULT false,
 register_status VARCHAR(4096),
 dtmf_type ENUM('rfc2833','tones','info') NOT NULL DEFAULT 'rfc2833',
 outbound_sip_proxy VARCHAR(255),
-trunk_type ENUM('static-ip','auth','registration') NOT NULL DEFAULT 'static-ip',
+trunk_type ENUM('static_ip','auth','reg') NOT NULL DEFAULT 'static_ip',
 PRIMARY KEY (voip_carrier_sid)
 ) COMMENT='A Carrier or customer PBX that can send or receive calls';
 
@@ -479,20 +493,6 @@ password VARCHAR(255),
 PRIMARY KEY (webhook_sid)
 ) COMMENT='An HTTP callback';
 
-CREATE TABLE clients
-(
-client_sid CHAR(36) NOT NULL UNIQUE ,
-account_sid CHAR(36) NOT NULL,
-is_active BOOLEAN NOT NULL DEFAULT 1,
-username VARCHAR(64),
-password VARCHAR(1024),
-allow_direct_app_calling BOOLEAN NOT NULL DEFAULT 1,
-allow_direct_queue_calling BOOLEAN NOT NULL DEFAULT 1,
-allow_direct_user_calling BOOLEAN NOT NULL DEFAULT 1,
-voip_carrier_sid CHAR(36),
-PRIMARY KEY (client_sid)
-);
-
 CREATE TABLE applications
 (
 application_sid CHAR(36) NOT NULL UNIQUE ,
@@ -505,7 +505,7 @@ messaging_hook_sid CHAR(36) COMMENT 'webhook to call for inbound SMS/MMS ',
 app_json TEXT,
 speech_synthesis_vendor VARCHAR(64) NOT NULL DEFAULT 'google',
 speech_synthesis_language VARCHAR(12) NOT NULL DEFAULT 'en-US',
-speech_synthesis_voice VARCHAR(256),
+speech_synthesis_voice VARCHAR(256) DEFAULT 'en-US-Standard-C',
 speech_synthesis_label VARCHAR(64),
 speech_recognizer_vendor VARCHAR(64) NOT NULL DEFAULT 'google',
 speech_recognizer_language VARCHAR(64) NOT NULL DEFAULT 'en-US',
@@ -581,6 +581,9 @@ CREATE INDEX call_route_sid_idx ON call_routes (call_route_sid);
 ALTER TABLE call_routes ADD FOREIGN KEY account_sid_idxfk_3 (account_sid) REFERENCES accounts (account_sid);
 
 ALTER TABLE call_routes ADD FOREIGN KEY application_sid_idxfk (application_sid) REFERENCES applications (application_sid);
+
+CREATE INDEX client_sid_idx ON clients (client_sid);
+ALTER TABLE clients ADD CONSTRAINT account_sid_idxfk_13 FOREIGN KEY account_sid_idxfk_13 (account_sid) REFERENCES accounts (account_sid);
 
 CREATE INDEX dns_record_sid_idx ON dns_records (dns_record_sid);
 ALTER TABLE dns_records ADD FOREIGN KEY account_sid_idxfk_4 (account_sid) REFERENCES accounts (account_sid);
@@ -702,6 +705,12 @@ ALTER TABLE phone_numbers ADD FOREIGN KEY service_provider_sid_idxfk_8 (service_
 
 CREATE INDEX sip_gateway_idx_hostport ON sip_gateways (ipv4,port);
 
+CREATE INDEX idx_sip_gateways_inbound_carrier ON sip_gateways (inbound,voip_carrier_sid);
+
+CREATE INDEX idx_sip_gateways_inbound_lookup ON sip_gateways (inbound,netmask,ipv4);
+
+CREATE INDEX idx_sip_gateways_inbound_netmask ON sip_gateways (inbound,netmask);
+
 CREATE INDEX voip_carrier_sid_idx ON sip_gateways (voip_carrier_sid);
 ALTER TABLE sip_gateways ADD FOREIGN KEY voip_carrier_sid_idxfk_2 (voip_carrier_sid) REFERENCES voip_carriers (voip_carrier_sid);
 
@@ -710,11 +719,6 @@ ALTER TABLE lcr_carrier_set_entry ADD FOREIGN KEY lcr_route_sid_idxfk (lcr_route
 ALTER TABLE lcr_carrier_set_entry ADD FOREIGN KEY voip_carrier_sid_idxfk_3 (voip_carrier_sid) REFERENCES voip_carriers (voip_carrier_sid);
 
 CREATE INDEX webhook_sid_idx ON webhooks (webhook_sid);
-CREATE INDEX client_sid_idx ON clients (client_sid);
-ALTER TABLE clients ADD CONSTRAINT account_sid_idxfk_13 FOREIGN KEY account_sid_idxfk_13 (account_sid) REFERENCES accounts (account_sid);
-
-ALTER TABLE clients ADD FOREIGN KEY voip_carrier_sid_idxfk_4 (voip_carrier_sid) REFERENCES voip_carriers (voip_carrier_sid);
-
 CREATE UNIQUE INDEX applications_idx_name ON applications (account_sid,name);
 
 CREATE INDEX application_sid_idx ON applications (application_sid);
