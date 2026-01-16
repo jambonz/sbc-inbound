@@ -129,7 +129,7 @@ values ('acct-100', 'Account 100', '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'foob
 insert into voip_carriers (voip_carrier_sid, name, account_sid, service_provider_sid, trunk_type,
     requires_register, register_username, register_sip_realm, register_password, is_active)
 values ('4a7d1c8e-5f2b-4d9a-8e3c-6b5a9f1e4c7d', 'test-registration-trunk', 'ed649e33-e771-403a-8c99-1780eabbc803',
-    '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'registration', true, 'testuser',
+    '3f35518f-5a0d-4c2e-90a5-2407bb3b36f0', 'reg', true, 'testuser',
     'sip.carrier.example.com', 'testpass', true);
 
 -- sip_gateway for outbound only (inbound will use ephemeral gateway from Redis)
