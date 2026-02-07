@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-auto-scaling": "^3.549.0",
-    "@aws-sdk/client-sns": "^3.549.0",
+    "@aws-sdk/client-sns": "^3.974.0",
     "@babel/helpers": "^7.26.10",
     "@jambonz/db-helpers": "^0.9.18",
     "@jambonz/digest-utils": "^0.0.9",
