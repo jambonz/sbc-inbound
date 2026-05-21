@@ -270,7 +270,7 @@ srf.invite((req, res) => {
   session.connect();
 });
 
-srf.use((req, res, next, err) => {
+srf.use((err, req, res, next) => {
   logger.error(err, 'hit top-level error handler');
   res.send(500);
 });
