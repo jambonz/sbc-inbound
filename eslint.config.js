@@ -96,7 +96,7 @@ module.exports = [
       // Variables
       'no-delete-var': 2,
       'no-undef': 2,
-      'no-unused-vars': [2, {args: 'none'}],
+      'no-unused-vars': [2, {args: 'none', ignoreRestSiblings: true}],
 
       // Node.js and CommonJS
       'no-mixed-requires': 2,
