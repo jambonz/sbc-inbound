@@ -4,7 +4,7 @@
     "ICE": "default",
     "SDES": "off",
     "flags": ["generate mid", "SDES-no", "port latching"],
-    "rtcp-mux": ["require"]  
+    "rtcp-mux": ["offer"]
   },
   "teams": {
     "transport-protocol": "RTP/SAVP",
