@@ -155,6 +155,17 @@ srf.locals = {
 };
 const activeCallIds = srf.locals.activeCallIds;
 
+/* report our call count to redis so a draining process can count calls across
+   all sbc-inbound and sbc-outbound processes on this server */
+if (!process.env.K8S && 'test' !== process.env.NODE_ENV) {
+  srf.locals.callCountReporter = require('./lib/call-count-reporter')({
+    logger,
+    addKey,
+    addToSet,
+    getCount: () => activeCallIds.size
+  });
+}
+
 const {
   initLocals,
   handleSipRec,
